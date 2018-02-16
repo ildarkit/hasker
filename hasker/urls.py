@@ -18,4 +18,11 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^ask/', admin.site.urls),
+    url(r'^question/', admin.site.urls),
+    url(r'^search/', admin.site.urls),
+    url(r'^tag/', admin.site.urls),
+    url(r'^signup/', admin.site.urls),
+    url(r'^login/', admin.site.urls),
+    url(r'^setings/', admin.site.urls),
 ]

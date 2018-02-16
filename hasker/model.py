@@ -18,6 +18,7 @@ class Answer(models.Model):
     autor = models.ManyToOneRel()
     pub_date = models.DateTimeField('date published')
     correct = models.BooleanField()
+    votes = models.IntegerField(default=0)
 
 class Tag(models.Model):
     tag = models.SlugField(unique=True)
