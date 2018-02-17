@@ -1,22 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class HaskerUser(User):
-    icon = models.CharField()
+    icon = models.ImageField()
     registration = models.DateTimeField('date registration')
 
+
 class Question(models.Model):
-    header = models.CharField(max_length=50)
-    autor = models.ManyToOneRel()
-    question_text = models.CharField(max_length=200)
+    header = models.CharField(max_length=255)
+    author = models.ForeignKey(HaskerUser)
+    question_text = models.TextField()
     pub_date = models.DateTimeField('date published')
 
+
 class Answer(models.Model):
-    text = models.CharField(max_length=200)
-    autor = models.ManyToOneRel()
+    text = models.TextField()
+    author = models.ForeignKey(HaskerUser)
     pub_date = models.DateTimeField('date published')
-    correct = models.BooleanField()
+    is_correct = models.BooleanField()
     votes = models.IntegerField(default=0)
+
 
 class Tag(models.Model):
     tag = models.SlugField(unique=True)
