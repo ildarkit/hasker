@@ -7,9 +7,10 @@ class HaskerUser(User):
     registration = models.DateTimeField('date registration')
 
 
-class BaseModel(models.Model, HaskerUser):
+class BaseModel(HaskerUser):
     author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
     text = models.TextField()
+
     class Meta:
         abstract = True
 
