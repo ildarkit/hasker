@@ -9,14 +9,14 @@ class HaskerUser(User):
 
 class Question(models.Model):
     header = models.CharField(max_length=255)
-    author = models.ForeignKey(HaskerUser)
+    author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
     question_text = models.TextField()
     pub_date = models.DateTimeField('date published')
 
 
 class Answer(models.Model):
     text = models.TextField()
-    author = models.ForeignKey(HaskerUser)
+    author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published')
     is_correct = models.BooleanField()
     votes = models.IntegerField(default=0)
