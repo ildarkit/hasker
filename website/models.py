@@ -7,16 +7,19 @@ class HaskerUser(User):
     registration = models.DateTimeField('date registration')
 
 
-class Question(models.Model):
-    header = models.CharField(max_length=255)
+class BaseModel(models.Model, HaskerUser):
     author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
-    question_text = models.TextField()
+    text = models.TextField()
+    class Meta:
+        abstract = True
+
+
+class Question(BaseModel):
+    header = models.CharField(max_length=255)
     pub_date = models.DateTimeField('date published')
 
 
-class Answer(models.Model):
-    text = models.TextField()
-    author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
+class Answer(BaseModel):
     pub_date = models.DateTimeField('date published')
     is_correct = models.BooleanField()
     votes = models.IntegerField(default=0)
