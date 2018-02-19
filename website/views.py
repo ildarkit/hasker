@@ -4,7 +4,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Question
 
 
-def index(request):
+def ask(request):
     question_list = Question.objects.all()
     paginator = Paginator(question_list, 20)  # Show 25 contacts per page
 
@@ -24,7 +24,7 @@ def search(request):
     pass
 
 
-def ask(request):
+def index(request):
     pass
 
 
