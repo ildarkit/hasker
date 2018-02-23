@@ -14,16 +14,21 @@ class Question(models.Model):
     text = models.TextField()
 
 
+class Tag(models.Model):
+    tag = models.SlugField(unique=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+
 class Answer(models.Model):
     author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published')
     is_correct = models.BooleanField()
     votes = models.IntegerField(default=0)
     text = models.TextField()
 
+    #def send_email(self):
+    #    self.email
+
     class Meta:
         ordering = ["-pub_date"]
-
-
-class Tag(models.Model):
-    tag = models.SlugField(unique=True)
