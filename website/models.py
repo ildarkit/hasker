@@ -8,7 +8,8 @@ class HaskerUser(User):
 
 
 class Question(models.Model):
-    author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(HaskerUser, related_name='questions',
+                               on_delete=models.CASCADE)
     header = models.CharField(max_length=255)
     pub_date = models.DateTimeField('date published')
     text = models.TextField()
@@ -19,12 +20,14 @@ class Question(models.Model):
 
 class Tag(models.Model):
     tag = models.SlugField(unique=True)
-    question = models.ManyToManyField(Question)
+    question = models.ManyToManyField(Question, related_name='tags')
 
 
 class Answer(models.Model):
-    author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    author = models.ForeignKey(HaskerUser, related_name='answers',
+                               on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='answers',
+                                 on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published')
     is_correct = models.BooleanField(default=False)
     votes = models.PositiveIntegerField(default=0)
