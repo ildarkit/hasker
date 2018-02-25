@@ -13,18 +13,21 @@ class Question(models.Model):
     pub_date = models.DateTimeField('date published')
     text = models.TextField()
 
+    def __str__(self):
+        return self.header.replace(' ', '-')
+
 
 class Tag(models.Model):
     tag = models.SlugField(unique=True)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ManyToManyField(Question)
 
 
 class Answer(models.Model):
     author = models.ForeignKey(HaskerUser, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published')
-    is_correct = models.BooleanField()
-    votes = models.IntegerField(default=0)
+    is_correct = models.BooleanField(default=False)
+    votes = models.PositiveIntegerField(default=0)
     text = models.TextField()
 
     #def send_email(self):
