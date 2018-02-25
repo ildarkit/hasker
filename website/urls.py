@@ -4,8 +4,8 @@ from . import views
 
 urlpatterns = [
     url(r'search/', views.search, name='search'),
-    url(r'ask/', views.ListPageView.as_view(), name='ask'),
-    url(r'question/<int:pk>/', views.question, name='question'),
+    url(r'ask/', views.ListQuestionsView.as_view(), name='ask'),
+    url(r'question/<header>/', views.question, name='question'),
     url(r'tag/', views.tag, name='tag'),
     url(r'login/', views.login, name='login'),
     url(r'signup/', views.signup, name='signup'),

@@ -39,9 +39,11 @@
             {% endblock content %}
             </div>
             <div class="col-md-auto">
+                {% if user.is_authenticated %}
                 <div class="d-flex justify-content-center">
                     <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#askModal">Ask!</button>
                 </div>
+                {% endif %}
                 <ul class="nav flex-column">
                     <li class="nav-item">
                     <ul class="nav nav-pills nav-fill">
@@ -79,6 +81,7 @@
           </div>
           <div class="modal-body">
             <form>
+              {% csrf_token %}
               <div class="form-group">
                 <label for="title-name" class="col-form-label">Title:</label>
                 <input type="text" class="form-control" id="title-name">

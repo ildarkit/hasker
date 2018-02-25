@@ -1,21 +1,27 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic import CreateView
 from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.forms import modelformset_factory
+from django.db.models import Prefetch
 
 from .models import Question
+from .models import Answer
+from .models import HaskerUser
 from .forms import QuestionCreateForm
 
 
-class ListPageView(TemplateView):
+class ListQuestionsView(TemplateView):
 
     template_name = 'list.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ListPageView, self).get_context_data(**kwargs)
+        context = super(ListQuestionsView, self).get_context_data(**kwargs)
         question_list = Question.objects.all()
         paginator = Paginator(question_list, 20)
         page = self.request.GET.get('page')
@@ -44,7 +50,8 @@ class QuestionCreateView(CreateView):
         form = self.get_form()
         if form.is_valid():
             model_instance = form.save()
-            return redirect('question', kwargs={'pk': model_instance.pk})
+            request.session['question_id'] = str(model_instance.pk)
+            return redirect('question', kwargs={'header': model_instance})
         else:
             return self.form_invalid(form)
 
@@ -57,8 +64,19 @@ def index(request):
     return redirect('ask')
 
 
-def question(request):
-    pass
+def question(request, header):
+    question_id = request.session.pop('question_id', None)
+    if question_id:
+        # question = get_object_or_404(Question, pk=int(question_id))
+        question_query = Question.objects.filter(pk=question_id)
+        answers_query = question_query.answers.all()
+    else:
+        header = header.replace('-', ' ')
+        question_query = Question.objects.filser(header=header)
+        answers_query = question_query.answers.all()
+    if request.method == 'GET':
+        return render(request, 'question.html',
+                      context={'questions': question_query, 'answers': answers_query})
 
 
 def tag(request):
