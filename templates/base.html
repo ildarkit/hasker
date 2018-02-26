@@ -41,9 +41,15 @@
             <div class="col-md-auto">
                 {% if user.is_authenticated %}
                 <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#askModal">Ask!</button>
+                    <button type="button" class="btn btn-success btn-block" data-toggle="modal"
+                            data-target="#askModal">Ask Question</button>
                 </div>
+                {% else %}
+                <!-- всплывающая подсказка -->
+                   <a tabindex="0" class="btn btn-success btn-block" role="button" data-toggle="popover"
+                      data-trigger="focus" title="Authorization" data-container="body" data-html="true">Ask Question</a>
                 {% endif %}
+                <h3 class="d-flex justify-content-center text-dark">Trending</h3>
                 <ul class="nav flex-column">
                     <li class="nav-item">
                     <ul class="nav nav-pills nav-fill">
@@ -51,7 +57,7 @@
                             <a class="nav-link active" href="#">100</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">How to Python?</a>
+                            <a class="nav-link text-secondary" href="#">How to Python?</a>
                         </li>
                     </ul>
                     </li>
@@ -61,7 +67,7 @@
                             <a class="nav-link active" href="#">80</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">How to Python?</a>
+                            <a class="nav-link text-secondary" href="#">How to Python?</a>
                         </li>
                     </ul>
                     </li>
@@ -106,5 +112,12 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      $("[data-toggle=popover]").popover({
+          content: function() {
+                   return '<div>Please <a href="/login/">log in</a> or <a href="/signup/">register</a> first.</div>';
+                   }
+       });
+    </script>
 </body>
 </html>
