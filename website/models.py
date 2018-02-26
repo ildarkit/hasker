@@ -1,17 +1,18 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 
 class HaskerUser(User):
-    icon = models.ImageField()
-    registration = models.DateTimeField('date registration')
+    icon = models.ImageField('avatar', blank=True)
+    registration = models.DateTimeField('date registration', default=timezone.now)
 
 
 class Question(models.Model):
     author = models.ForeignKey(HaskerUser, related_name='questions',
                                on_delete=models.CASCADE)
     header = models.CharField(max_length=255)
-    pub_date = models.DateTimeField('date published')
+    pub_date = models.DateTimeField('date published', default=timezone.now)
     text = models.TextField()
 
     def __str__(self):
@@ -28,7 +29,7 @@ class Answer(models.Model):
                                on_delete=models.CASCADE)
     question = models.ForeignKey(Question, related_name='answers',
                                  on_delete=models.CASCADE)
-    pub_date = models.DateTimeField('date published')
+    pub_date = models.DateTimeField('date published', default=timezone.now)
     is_correct = models.BooleanField(default=False)
     votes = models.PositiveIntegerField(default=0)
     text = models.TextField()

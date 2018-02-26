@@ -9,11 +9,13 @@ from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.forms import modelformset_factory
 from django.db.models import Prefetch
+from django.contrib.auth import authenticate, login, logout
 
 from .models import Question
 from .models import Answer
 from .models import HaskerUser
 from .forms import QuestionCreateForm
+from .forms import UserCreateForm
 
 
 class ListQuestionsView(TemplateView):
@@ -83,12 +85,28 @@ def tag(request):
     pass
 
 
-def login(request):
-    pass
+def logout_view(request):
+    logout(request)
+    return redirect('ask')
 
 
-def signup(request):
-    pass
+class SignUpView(CreateView):
+    model = HaskerUser
+    form_class = UserCreateForm
+    template_name = 'signup.html'
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form = self.get_form()
+        if form.is_valid():
+            model_instance = form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('ask')
+        else:
+            return self.form_invalid(form)
 
 
 def settings(request):
