@@ -42,6 +42,7 @@ class ListQuestionsView(TemplateView):
 class QuestionCreateView(CreateView):
     model = Question
     form_class = QuestionCreateForm
+    template_name = 'list.html'
 
     def post(self, request, *args, **kwargs):
         """
@@ -71,14 +72,12 @@ def question(request, header):
     if question_id:
         # question = get_object_or_404(Question, pk=int(question_id))
         question_query = Question.objects.filter(pk=question_id)
-        answers_query = question_query.answers.all()
     else:
         header = header.replace('-', ' ')
         question_query = Question.objects.filser(header=header)
-        answers_query = question_query.answers.all()
     if request.method == 'GET':
         return render(request, 'question.html',
-                      context={'questions': question_query, 'answers': answers_query})
+                      context={'questions': question_query})
 
 
 def tag(request):
