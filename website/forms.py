@@ -9,7 +9,7 @@ class QuestionCreateForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ['header', 'text', ]
+        fields = ['header', 'text', 'tags']
 
 
 class UserCreateForm(UserCreationForm):
