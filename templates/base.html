@@ -26,17 +26,17 @@
           </li>
           {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="/settings/">{{ user.username }}</a>
+            <a class="nav-link" href="{% url 'settings' %}">{{ user.username }}</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/logout/">Log out</a>
+            <a class="nav-link" href="{% url 'logout' %}">Log out</a>
           </li>
           {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="/login/">Log In</a>
+            <a class="nav-link" href="{% url 'login' %}">Log In</a>
           </li>
           <li class="nav-item">
-            <a href='/signup/' class="btn btn-outline-success my-2 my-sm-0" role="button">Sign Up</a>
+            <a href="{% url 'signup' %}" class="btn btn-outline-success my-2 my-sm-0" role="button">Sign Up</a>
           </li>
           {% endif %}
         </ul>
@@ -111,11 +111,11 @@
                 <label for="tag-text" class="col-form-label">Tag:</label>
                 <input class="form-control" id="tag-text">
               </div>
+                <div class="form-group modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="{% url 'create_question' %}" class="btn btn-success my-2 my-sm-0" role="button">Ask!</a>
+                </div>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Ask!</button>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@
     <script type="text/javascript">
       $("[data-toggle=popover]").popover({
           content: function() {
-                   return '<div>Please <a href="/login/">log in</a> or <a href="/signup/">register</a> first.</div>';
+                   return '<div>Please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'signup' %}">register</a> first.</div>';
                    }
        });
     </script>
