@@ -97,23 +97,23 @@
             </button>
           </div>
           <div class="modal-body">
-            <form>
+            <form method="post" action="{% url 'create_question' %}">
               {% csrf_token %}
               <div class="form-group">
-                <label for="title-name" class="col-form-label">Title:</label>
-                <input type="text" class="form-control" id="title-name">
+                <label for="{{ form.header.id_for_label }}" class="col-form-label">Title:</label>
+                <input type="text" class="form-control" id="{{ form.header.id_for_label }}">
               </div>
               <div class="form-group">
-                <label for="message-text" class="col-form-label">Text:</label>
-                <textarea class="form-control" id="message-text"></textarea>
+                <label for="{{ form.text.id_for_label }}" class="col-form-label">Text:</label>
+                <textarea class="form-control" id="{{ form.text.id_for_label }}"></textarea>
               </div>
               <div class="form-group">
-                <label for="tag-text" class="col-form-label">Tag:</label>
-                <input class="form-control" id="tag-text">
+                <label for="{{ form.tags.id_for_label }}" class="col-form-label">Tags:</label>
+                <input class="form-control" id="{{ form.tags.id_for_label }}">
               </div>
                 <div class="form-group modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <a href="{% url 'create_question' %}" class="btn btn-success my-2 my-sm-0" role="button">Ask!</a>
+                    <button type="button" class="btn btn-success my-2 my-sm-0">Ask!</button>
                 </div>
             </form>
           </div>

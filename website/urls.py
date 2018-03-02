@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     url(r'search/', views.search, name='search'),
     url(r'ask/', views.ListQuestionsView.as_view(), name='ask'),
-    url(r'question/', views.QuestionCreateView.as_view(), name='create_question'),
+    url(r'question/$', views.QuestionCreateView.as_view(), name='create_question'),
     url(r'question/(?P<header>)/', views.question, name='question'),
     url(r'tag/', views.tag, name='tag'),
     url(r'login/', auth_views.login, {'template_name': 'login.html', }, name='login'),
