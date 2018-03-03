@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -10,53 +11,30 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.forms import modelformset_factory
 from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login, logout
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
 from .models import Question
 from .models import Answer
-from .models import HaskerUser
+from .models import Profile
 from .forms import QuestionCreateForm
 from .forms import UserCreateForm
+from .forms import ProfileCreateForm
 
 
-class ListQuestionsView(TemplateView):
-
-    template_name = 'list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ListQuestionsView, self).get_context_data(**kwargs)
-        question_list = Question.objects.all()
-        paginator = Paginator(question_list, 20)
-        page = self.request.GET.get('page')
-        try:
-            questions = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            questions = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            questions = paginator.page(paginator.num_pages)
-        context['questions'] = questions
-        return context
-
-
-class QuestionCreateView(CreateView):
-    model = Question
-    form_class = QuestionCreateForm
-    template_name = 'list.html'
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handles POST requests, instantiating a form instance with the passed
-        POST variables and then checked for validity.
-        """
-        self.object = None
-        form = self.get_form()
-        if form.is_valid():
-            model_instance = form.save()
-            request.session['question_id'] = str(model_instance.pk)
-            return redirect('question', kwargs={'header': model_instance})
-        else:
-            return self.form_invalid(form)
+def question_list_view(request):
+    if request.method == 'POST':
+        question_form = QuestionCreateForm(request.POST)
+        if question_form.is_valid():
+            question = question_form.save(commit=False)
+            question.author = Profile.objects.get(pk=request.user.pk)
+            question.save()
+            request.session['question_id'] = str(question.pk)
+            return redirect('question', str(question))
+    else:
+        question_form = QuestionCreateForm()
+    questions = Question.objects.all()
+    return render(request, 'list.html', {'form': question_form, 'questions': questions})
 
 
 def search(request):
@@ -70,14 +48,16 @@ def index(request):
 def question(request, header):
     question_id = request.session.pop('question_id', None)
     if question_id:
-        # question = get_object_or_404(Question, pk=int(question_id))
         question_query = Question.objects.filter(pk=question_id)
     else:
         header = header.replace('-', ' ')
-        question_query = Question.objects.filser(header=header)
+        question_query = Question.objects.filter(header=header)
     if request.method == 'GET':
+        question_form = QuestionCreateForm()
         return render(request, 'question.html',
-                      context={'questions': question_query})
+                      context={'questions': question_query, 'form': question_form})
+    else:
+        return question_list_view(request)
 
 
 def tag(request):
@@ -89,23 +69,25 @@ def logout_view(request):
     return redirect('ask')
 
 
-class SignUpView(CreateView):
-    model = HaskerUser
-    form_class = UserCreateForm
-    template_name = 'signup.html'
-
-    def post(self, request, *args, **kwargs):
-        self.object = None
-        form = self.get_form()
-        if form.is_valid():
-            model_instance = form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
+def signup_view(request):
+    if request.method == 'POST':
+        user_form = UserCreateForm(request.POST)
+        profile_form = ProfileCreateForm(request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            username = user_form.cleaned_data.get('username')
+            raw_password = user_form.cleaned_data.get('password1')
+            user = user_form.save()
             user = authenticate(username=username, password=raw_password)
             login(request, user)
+            messages.success(request, _('Welcome to Hasker, {}'.format(username)))
             return redirect('ask')
-        else:
-            return self.form_invalid(form)
+
+    else:
+        user_form = UserCreateForm()
+        profile_form = ProfileCreateForm()
+    return render(request, 'signup.html', {
+        'user_form': (user_form, profile_form)
+    })
 
 
 def settings(request):
