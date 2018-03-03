@@ -27,7 +27,7 @@ def _lazy_re_compile(regex, flags=0):
 
 
 def tag_list_validator(sep=',', message=None, code='invalid'):
-    regexp = _lazy_re_compile(r'^(?:\s*\w+\s*%(sep)s[\s\w]*)+$' % {
+    regexp = _lazy_re_compile(r'^(?:\s*\w+((?:\s*%(sep)s\s*)|(?:\w*)|(?:\s*$)))+$' % {
         'sep': re.escape(sep),
     })
 

@@ -1,28 +1,40 @@
 from django.db import models
 from django.utils import timezone
-# from django.dispatch import receiver
+from django.dispatch import receiver
 from django.contrib.auth.models import User
-# from django.db.models.signals import post_save
+from django.db.models.signals import post_save
 
 from .validators import validate_max_list_length, validate_comma_separated_tags_list
 
 
-class HaskerUser(User):
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     icon = models.ImageField('avatar', blank=True)
     registration = models.DateTimeField('date registration', default=timezone.now)
 
 
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+
 class Question(models.Model):
-    author = models.ForeignKey(HaskerUser, related_name='questions',
+    author = models.ForeignKey(Profile, related_name='questions',
                                on_delete=models.CASCADE)
     header = models.CharField(max_length=255)
     pub_date = models.DateTimeField('date published', default=timezone.now)
     text = models.TextField()
     tags = models.CharField(validators=[validate_max_list_length,
-                                        validate_comma_separated_tags_list], max_length=3)
+                                        validate_comma_separated_tags_list], max_length=255)
 
     def __str__(self):
-        return self.header.replace(' ', '-')
+        return self.header.lower().replace(' ', '-')
 
 
 class Tag(models.Model):
@@ -31,7 +43,7 @@ class Tag(models.Model):
 
 
 class Answer(models.Model):
-    author = models.ForeignKey(HaskerUser, related_name='answers',
+    author = models.ForeignKey(Profile, related_name='answers',
                                on_delete=models.CASCADE)
     question = models.ForeignKey(Question, related_name='answers',
                                  on_delete=models.CASCADE)
