@@ -11,7 +11,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Hasker</a>
+      <a class="navbar-brand" href="{% url 'ask' %}">Hasker</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
               aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -97,26 +97,22 @@
             </button>
           </div>
           <div class="modal-body">
-            <form method="post" action="{% url 'create_question' %}">
+            <form method="post">
               {% csrf_token %}
-              <div class="form-group">
-                <label for="{{ form.header.id_for_label }}" class="col-form-label">Title:</label>
-                <input type="text" class="form-control" id="{{ form.header.id_for_label }}">
-              </div>
-              <div class="form-group">
-                <label for="{{ form.text.id_for_label }}" class="col-form-label">Text:</label>
-                <textarea class="form-control" id="{{ form.text.id_for_label }}"></textarea>
-              </div>
-              <div class="form-group">
-                <label for="{{ form.tags.id_for_label }}" class="col-form-label">Tags:</label>
-                <input class="form-control" id="{{ form.tags.id_for_label }}">
-              </div>
+                {% for field in form %}
+                <p>
+                    {{ field.label_tag }}<br>
+                    {{ field }}
+                    {% for error in field.errors %}
+                         <p style="color: red">{{ error }}</p>
+                    {% endfor %}
+                </p>
+                {% endfor %}
                 <div class="form-group modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success my-2 my-sm-0">Ask!</button>
+                    <button type="submit" class="btn btn-success my-2 my-sm-0">Ask!</button>
                 </div>
             </form>
-          </div>
         </div>
       </div>
     </div>
