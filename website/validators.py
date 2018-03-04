@@ -10,8 +10,7 @@ def validate_max_list_length(value):
     _max = 3
     sep = ','
     if len(value.strip(sep).split(sep)) > _max:
-        raise ValidationError(_('Enter no more than %(max)s tags',
-                                params={'max': _max}), code='max_length')
+        raise ValidationError(_('Enter no more than {} tags.'.format(_max)))
 
 
 def _lazy_re_compile(regex, flags=0):
@@ -27,7 +26,7 @@ def _lazy_re_compile(regex, flags=0):
 
 
 def tag_list_validator(sep=',', message=None, code='invalid'):
-    regexp = _lazy_re_compile(r'^(?:\s*\w+((?:\s*%(sep)s\s*)|(?:\w*)|(?:\s*$)))+$' % {
+    regexp = _lazy_re_compile(r'^(?:\w+((?:\s*%(sep)s\s*)|(?:\w*)|(?:\s*$)))+$' % {
         'sep': re.escape(sep),
     })
 
@@ -35,6 +34,6 @@ def tag_list_validator(sep=',', message=None, code='invalid'):
 
 
 validate_comma_separated_tags_list = tag_list_validator(
-    message=_('Enter tags (latin alphanumeric character and the underscore'
+    message=_('Enter tags (alphanumeric characters and the underscore'
               ' are only allowed) separated by commas.'),
 )

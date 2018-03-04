@@ -20,6 +20,27 @@ class UserCreateForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2', )
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not email:
+            raise forms.ValidationError(_("Required field."))
+        else:
+            return email
+
+
+class UserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('email', )
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not email:
+            raise forms.ValidationError(_("Required field."))
+        else:
+            return email
+
 
 class ProfileCreateForm(forms.ModelForm):
 

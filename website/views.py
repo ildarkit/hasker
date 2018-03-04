@@ -17,22 +17,32 @@ from django.contrib.auth.models import User
 from .models import Question
 from .models import Answer
 from .models import Profile
+from .forms import UserForm
 from .forms import QuestionCreateForm
 from .forms import UserCreateForm
 from .forms import ProfileCreateForm
 
 
-def question_list_view(request):
+def create_or_get_question_form(request):
+    """ Вспомогательная функция создания формы вопроса"""
     if request.method == 'POST':
         question_form = QuestionCreateForm(request.POST)
         if question_form.is_valid():
             question = question_form.save(commit=False)
-            question.author = Profile.objects.get(pk=request.user.pk)
+            question.author = Profile.objects.get(user_id=request.user.pk)
             question.save()
             request.session['question_id'] = str(question.pk)
-            return redirect('question', str(question))
     else:
         question_form = QuestionCreateForm()
+    return question_form
+
+
+def question_list_view(request):
+    """Главная страница со списком вопросов"""
+    question_form = create_or_get_question_form(request)
+    if request.method == 'POST':
+        question = question_form.save(commit=False)
+        return redirect('question', str(question))
     questions = Question.objects.all()
     return render(request, 'list.html', {'form': question_form, 'questions': questions})
 
@@ -46,18 +56,20 @@ def index(request):
 
 
 def question(request, header):
+    """ Страница вопроса со списком ответов """
+    question_form = create_or_get_question_form(request)
     question_id = request.session.pop('question_id', None)
     if question_id:
         question_query = Question.objects.filter(pk=question_id)
     else:
         header = header.replace('-', ' ')
         question_query = Question.objects.filter(header=header)
-    if request.method == 'GET':
-        question_form = QuestionCreateForm()
-        return render(request, 'question.html',
-                      context={'questions': question_query, 'form': question_form})
-    else:
-        return question_list_view(request)
+    if request.method == 'POST':
+        question = question_form.save(commit=False)
+        return redirect('question', str(question))
+
+    return render(request, 'question.html',
+                  context={'questions': question_query, 'form': question_form})
 
 
 def tag(request):
@@ -70,6 +82,18 @@ def logout_view(request):
 
 
 def signup_view(request):
+    """ Страница регистрации """
+    question_form = ()
+    if request.user.is_authenticated:
+        # форма вопроса на странице регистрации
+        if request.method == 'GET':
+            question_form = QuestionCreateForm()
+        else:
+            question_form = create_or_get_question_form(request)
+        if question_form.is_bound:
+            question = question_form.save(commit=False)
+            return redirect('question', str(question))
+
     if request.method == 'POST':
         user_form = UserCreateForm(request.POST)
         profile_form = ProfileCreateForm(request.POST)
@@ -86,10 +110,38 @@ def signup_view(request):
         user_form = UserCreateForm()
         profile_form = ProfileCreateForm()
     return render(request, 'signup.html', {
-        'user_form': (user_form, profile_form)
+        'user_form': (user_form, profile_form),
+        'form': question_form,
     })
 
 
 def settings(request):
-    pass
+    """ Страница настроек пользователя """
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            # форма вопроса на странице настроек
+            question_form = create_or_get_question_form(request)
+            if question_form.is_bound:
+                question = question_form.save(commit=False)
+                return redirect('question', str(question))
+
+            user_form = UserForm(request.POST, instance=request.user)
+            profile_form = ProfileCreateForm(request.POST, instance=request.user.profile)
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
+                return redirect('ask')
+        else:
+            question_form = QuestionCreateForm()
+
+            user = User.objects.get(pk=request.user.pk)
+            profile = Profile.objects.get(user_id=request.user.pk)
+            user_form = UserForm(instance=user)
+            profile_form = ProfileCreateForm(instance=profile)
+        return render(request, 'settings.html', {
+            'user_form': (user_form, profile_form),
+            'form': question_form,
+        })
+    else:
+        return redirect('ask')
 
