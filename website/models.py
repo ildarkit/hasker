@@ -38,7 +38,7 @@ class Question(models.Model):
 
 
 class Tag(models.Model):
-    tag = models.SlugField(unique=True)
+    name = models.SlugField(unique=True)
     question = models.ManyToManyField(Question, related_name='related_tags')
 
 

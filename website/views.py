@@ -1,9 +1,10 @@
 from collections import namedtuple
 
+from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import render_to_response
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_list_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
@@ -29,6 +30,7 @@ from .forms import ProfileCreateForm
 def question_form_helper(request):
     """ Вспомогательная функция создания формы вопроса"""
     tags = []
+    question = None
     if request.method == 'POST':
         question_form = QuestionCreateForm(request.POST)
         if question_form.is_valid():
@@ -39,15 +41,15 @@ def question_form_helper(request):
     else:
         tags = Tag.objects.all()
         question_form = QuestionCreateForm()
-    QuestionHelper = namedtuple('QuestionHelper', ('question_form', 'tags'))
-    return QuestionHelper(question_form, tags)
+    QuestionHelper = namedtuple('QuestionHelper', ('question_form', 'question', 'tags'))
+    return QuestionHelper(question_form, question, tags)
 
 
 def question_list_view(request):
     """Главная страница со списком вопросов"""
     question_helper = question_form_helper(request)
-    if request.method == 'POST':
-        question = question_helper.question_form.save(commit=False)
+    question = question_helper.question
+    if request.method == 'POST' and question:
         return redirect('question', str(question))
     questions = Question.objects.all()
     return render(request, 'list.html', {'questions': questions,
@@ -63,7 +65,7 @@ def index(request):
     return redirect('ask')
 
 
-def question(request, header):
+def question_view(request, header):
     """ Страница вопроса со списком ответов """
     question_helper = question_form_helper(request)
     question_id = request.session.pop('question_id', None)
@@ -71,10 +73,13 @@ def question(request, header):
         question_query = Question.objects.filter(pk=question_id)
     else:
         header = header.replace('-', ' ')
-        question_query = Question.objects.filter(header=header)
-    if request.method == 'POST':
-        question = question_helper.question_form.save(commit=False)
-        return redirect('question', str(question))
+        question_query = get_list_or_404(Question, header=header)
+        if not question_query:
+            raise Http404("No questions matches the given query.")
+    question = question_helper.question
+    if request.method == 'POST' and question:
+        return redirect('question',
+                        str(question))
 
     return render(request, 'question.html',
                   context={'questions': question_query,
@@ -99,9 +104,9 @@ def signup_view(request):
         # форма вопроса на странице регистрации
         question_helper = question_form_helper(request)
         question_form = question_helper.question_form
+        question = question_helper.question
         tags = question_helper.tags
-        if question_form.is_bound:
-            question = question_form.save(commit=False)
+        if question_form.is_bound and question:
             return redirect('question', str(question))
 
     if request.method == 'POST':
@@ -123,14 +128,14 @@ def signup_view(request):
                                            'form': question_form, 'tags': tags})
 
 
-def settings(request):
+def settings_view(request):
     """ Страница настроек пользователя """
     if request.user.is_authenticated:
         question_helper = question_form_helper(request)
         if request.method == 'POST':
             # форма вопроса на странице настроек
-            if question_helper.question_form.is_bound:
-                question = question_helper.question_form.save(commit=False)
+            question = question_helper.question
+            if question_helper.question_form.is_bound and question:
                 return redirect('question', str(question))
 
             user_form = UserForm(request.POST, instance=request.user)

@@ -117,6 +117,7 @@
                     <button type="submit" class="btn btn-success my-2 my-sm-0">Ask!</button>
                 </div>
             </form>
+          </div>
         </div>
       </div>
     </div>
@@ -131,7 +132,7 @@
                    return '<div>Please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'signup' %}">register</a> first.</div>';
                    }
        });
-        var availableTags = [{% for tag in tags %}"{{ tag.tag }}", {% endfor %}];
+        var availableTags = [{% for tag in tags %}"{{ tag.name }}", {% endfor %}];
 
         function split(val){
           return val.split( /,\s*/ );

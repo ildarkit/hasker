@@ -13,6 +13,13 @@ class QuestionCreateForm(forms.ModelForm):
         model = Question
         fields = ('header', 'text', 'tags', )
 
+    def clean_tags(self):
+        tags = self.cleaned_data['tags']
+        sep = ', '
+        tags = set(tags.strip(sep).split(sep))
+        tags = sep.join(tags)
+        return tags
+
 
 class UserCreateForm(UserCreationForm):
 
@@ -23,7 +30,7 @@ class UserCreateForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         if not email:
-            raise forms.ValidationError(_("Required field."))
+            raise forms.ValidationError(_("Please fill in this field."))
         else:
             return email
 
@@ -37,7 +44,7 @@ class UserForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         if not email:
-            raise forms.ValidationError(_("Required field."))
+            raise forms.ValidationError(_("Please fill in this field."))
         else:
             return email
 
