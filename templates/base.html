@@ -173,6 +173,9 @@
             return false;
           }
         });
+      {% if form.errors %}
+      $('#askModal').modal('show');
+      {% endif %}
     </script>
 </body>
 </html>
