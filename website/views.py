@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+from django.db import IntegrityError
 from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -37,12 +38,25 @@ def question_form_helper(request):
             question = question_form.save(commit=False)
             question.author = Profile.objects.get(user_id=request.user.pk)
             question.save()
+            add_question_tags(question)
             request.session['question_id'] = str(question.pk)
     else:
         tags = Tag.objects.all()
         question_form = QuestionCreateForm()
     QuestionHelper = namedtuple('QuestionHelper', ('question_form', 'question', 'tags'))
     return QuestionHelper(question_form, question, tags)
+
+
+def add_question_tags(question):
+    related_tags = []
+    for tag_name in question.tags.split(','):
+        tag_name = tag_name.strip()
+        try:
+            tag = Tag.objects.create(name=tag_name)
+        except IntegrityError:
+            tag = Tag.objects.get(name=tag_name)
+        related_tags.append(tag)
+    question.related_tags.add(*related_tags)
 
 
 def question_list_view(request):
