@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 
+from .models import Answer
 from .models import Question
 from .models import Profile
 
@@ -19,6 +20,13 @@ class QuestionCreateForm(forms.ModelForm):
         tags = set(tags.strip(sep).split(sep))
         tags = sep.join(tags)
         return tags
+
+
+class AnswerCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Answer
+        fields = ('text', )
 
 
 class UserCreateForm(UserCreationForm):
