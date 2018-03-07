@@ -3,19 +3,10 @@ from collections import namedtuple
 from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import redirect
-from django.shortcuts import render_to_response
-from django.shortcuts import get_object_or_404
-from django.contrib import messages
-from django.urls import reverse_lazy
-from django.views.generic.base import TemplateView
-from django.views.generic import CreateView
-from django.utils import timezone
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.forms import modelformset_factory
-from django.db.models import Prefetch
-from django.contrib.auth import authenticate, login, logout
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Tag
 from .models import Question
@@ -99,23 +90,26 @@ def question_view(request, header):
     """ Страница вопроса со списком ответов """
     question_helper = create_question_form_helper(request)
     question_form = question_helper.question_form
-    answer_helper = create_answer_form_helper(request)
+    if request.user.is_authenticated:
+        answer_helper = create_answer_form_helper(request)
+        answer_form = answer_helper.answer_form
+    else:
+        answer_form = ()
 
     if request.method == 'GET':
         new_question_id = request.session.pop('new_question_id', None)
         if new_question_id:
             # Новый вопрос
-            question = Question.objects.get(pk=new_question_id)
+            question = Question.objects.get(pk=int(new_question_id))
+            request.session['question_id'] = new_question_id
         else:
             # Попытка найти вопрос по его заголовку, полученному из строки запроса.
-            question_id = request.session.pop('question_id', None)
-            if question_id:
-                question = Question.objects.get(pk=question_id)
-            else:
-                header = header.replace('-', ' ')
-                question = Question.objects.get(header=header)
+            header = header.replace('-', ' ')
+            question = Question.objects.get(header=header)
             if not question:
                 raise Http404("No question match the given query.")
+            else:
+                request.session['question_id'] = str(question.pk)
 
     elif request.method == 'POST':
         if question_form.is_bound():
@@ -123,17 +117,17 @@ def question_view(request, header):
             question = question_helper.question
             request.session['new_question_id'] = str(question.pk)
             return redirect('question', str(question))
-        elif answer_helper.answer_form.is_bound():
+        elif answer_form and answer_form.is_bound():
             # создан ответ
             question_id = request.session.get('question_id', None)
-            question = Question.objects.get(pk=question_id)
+            question = Question.objects.get(pk=int(question_id))
             question.answers = answer_helper.answer
             question.save()
 
     return render(request, 'question.html',
                   context={'question': question,
                            'form': question_form,
-                           'answer_form': answer_helper.answer_form,
+                           'answer_form': answer_form,
                            'tags': question_helper.tags})
 
 
@@ -168,7 +162,6 @@ def signup_view(request):
             user = user_form.save()
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            messages.success(request, _('Welcome to Hasker, {}'.format(username)))
             return redirect('ask')
 
     elif request.method == 'GET':

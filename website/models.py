@@ -32,6 +32,7 @@ class Question(models.Model):
     text = models.TextField()
     tags = models.CharField(validators=[validate_max_list_length,
                                         validate_comma_separated_tags_list], max_length=255)
+    votes = models.ManyToManyField(User, related_name='question_votes')
 
     def __str__(self):
         return self.header.lower().replace(' ', '-')
@@ -49,7 +50,7 @@ class Answer(models.Model):
                                  on_delete=models.CASCADE)
     pub_date = models.DateTimeField('date published', default=timezone.now)
     is_correct = models.BooleanField(default=False)
-    votes = models.PositiveIntegerField(default=0)
+    votes = models.ManyToManyField(User, related_name='answer_votes')
     text = models.TextField()
 
     #def send_email(self):
