@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-{% for question in questions %}
-    {{ question.header }}<br />
+    {{ question }}<br />
+{% for answer in question.answers.all %}
+{{answer.answer_text}}
 {% endfor %}
+{% if user.is_authenticated %}
+<h4>Your answer</h4>
+<form method="post">
+    {% csrf_token %}
+    {% for field in answer_form %}
+      <p>
+        {{ field }}
+        {% for error in field.errors %}
+          <p style="color: red">{{ error }}</p>
+        {% endfor %}
+      </p>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+{% endif %}
 {% endblock %}

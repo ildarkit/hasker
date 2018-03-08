@@ -3,6 +3,7 @@ from collections import namedtuple
 from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import authenticate, login, logout
@@ -43,8 +44,9 @@ def add_question_tags(question):
     related_tags = []
     for tag_name in question.tags.split(','):
         tag_name = tag_name.strip()
-        tag = Tag.objects.get(name=tag_name)
-        if not tag:
+        try:
+            tag = Tag.objects.get(name=tag_name)
+        except ObjectDoesNotExist:
             tag = Tag.objects.create(name=tag_name)
         related_tags.append(tag)
     question.related_tags.add(*related_tags)
@@ -59,7 +61,6 @@ def create_answer_form_helper(request):
         if answer_form.is_valid():
             answer = answer_form.save(commit=False)
             answer.author = Profile.objects.get(user_id=request.user.pk)
-            answer.save()
     elif request.method == 'GET':
         answer_form = AnswerCreateForm()
     AnswerHelper = namedtuple('AnswerHelper', ('answer_form', 'answer'))
@@ -92,6 +93,7 @@ def question_view(request, header):
     question_form = question_helper.question_form
     if request.user.is_authenticated:
         answer_helper = create_answer_form_helper(request)
+        answer = answer_helper.answer
         answer_form = answer_helper.answer_form
     else:
         answer_form = ()
@@ -112,17 +114,17 @@ def question_view(request, header):
                 request.session['question_id'] = str(question.pk)
 
     elif request.method == 'POST':
-        if question_form.is_bound():
+        if question_form.is_valid() and question_form.is_bound:
             # переход на страницу созданного вопроса
             question = question_helper.question
             request.session['new_question_id'] = str(question.pk)
             return redirect('question', str(question))
-        elif answer_form and answer_form.is_bound():
+        elif answer_form and answer_form.is_bound:
             # создан ответ
             question_id = request.session.get('question_id', None)
             question = Question.objects.get(pk=int(question_id))
-            question.answers = answer_helper.answer
-            question.save()
+            answer.question = question
+            answer.save()
 
     return render(request, 'question.html',
                   context={'question': question,

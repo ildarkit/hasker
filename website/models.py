@@ -51,7 +51,7 @@ class Answer(models.Model):
     pub_date = models.DateTimeField('date published', default=timezone.now)
     is_correct = models.BooleanField(default=False)
     votes = models.ManyToManyField(User, related_name='answer_votes')
-    text = models.TextField()
+    answer_text = models.TextField()
 
     #def send_email(self):
     #    self.email
