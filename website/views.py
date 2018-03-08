@@ -3,9 +3,10 @@ from collections import namedtuple
 from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import redirect
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -131,6 +132,43 @@ def question_view(request, header):
                            'form': question_form,
                            'answer_form': answer_form,
                            'tags': question_helper.tags})
+
+
+@login_required
+def vote_view(request):
+    question_id = int(request.GET['question_id'])
+    question = Question.objects.get(pk=question_id)
+    for key in ('up_vote', 'down_vote', 'up_answer_id', 'down_answer_id'):
+        obj_id = request.GET.get(key, None)
+        if obj_id:
+            obj = Answer if 'answer' in key else Question
+            if 'up' in key:
+                vote_helper(request, obj=obj, up_vote_id=obj_id)
+            else:
+                vote_helper(request, obj=obj, down_vote_id=obj_id)
+            
+    if request.META.has_key('HTTP_REFERER'):
+        return redirect(request.META['HTTP_REFERER'])
+    else:
+        request.session['update_question_id'] = str(question.pk)
+        return redirect('question', str(question))
+
+
+def vote_helper(request, obj, up_vote_id=None, down_vote_id=None):
+    vote_id = up_vote_id or down_vote_id
+    db_object = obj.objects.get(pk=int(vote_id))
+    if up_vote_id:
+        voted = db_object.up_votes.filter(username=request.user.username)
+    else:
+        voted = db_object.down_votes.filter(username=request.user.username)
+    if not voted:
+        if up_vote_id:
+            db_object.up_votes.add(request.user)
+            db_object.rating += 1
+        else:
+            db_object.down_votes.add(request.user)
+            db_object.rating -= 1
+        db_object.save()
 
 
 def tag(request):
