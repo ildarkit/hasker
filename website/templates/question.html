@@ -4,9 +4,9 @@
 {% for answer in question.answers.all %}
 {{answer.answer_text}}
 {% endfor %}
-{% if user.is_authenticated %}
+{% if user.is_authenticated and user != question.author.user %}
 <h4>Your answer</h4>
-<form method="post">
+<form method="post" action="{% url 'answer' %}?question_id={{ question.pk }}">
     {% csrf_token %}
     {% for field in answer_form %}
       <p>

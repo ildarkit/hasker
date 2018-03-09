@@ -21,6 +21,12 @@ from .forms import UserCreateForm
 from .forms import ProfileCreateForm
 
 
+def render_404_page(request):
+    question_form = QuestionCreateForm()
+    return render(request, '404.html',
+                  context={'form': question_form})
+
+
 def create_question_form_helper(request):
     """ Вспомогательная функция создания формы вопроса"""
     tags = []
@@ -85,13 +91,17 @@ def search(request):
 
 
 def index(request):
-    return redirect('ask')
+    if request.META['PATH_INFO'] != '/':
+        return render_404_page(request)
+    else:
+        return redirect('ask')
 
 
-def question_view(request, header):
-    """ Страница вопроса со списком ответов """
-    question_helper = create_question_form_helper(request)
-    question_form = question_helper.question_form
+def answer_view(request):
+    """
+    Валидация формы ответа, сохранение ответа, связанного с вопросом.
+    Редирект на страницу вопроса.
+    """
     if request.user.is_authenticated:
         answer_helper = create_answer_form_helper(request)
         answer = answer_helper.answer
@@ -99,33 +109,51 @@ def question_view(request, header):
     else:
         answer_form = ()
 
+    if request.method == 'POST' and answer_form and answer_form.is_bound:
+        question_id = request.GET.get('question_id', None)
+        question = Question.objects.get(pk=int(question_id))
+        answer.question = question
+        answer.save()
+        request.session['updated_question_id'] = str(question.pk)
+        return redirect('question', str(question))
+    elif request.method == 'GET':
+        return render_404_page(request)
+
+
+def question_view(request, header):
+    """ Страница вопроса со списком ответов """
+    question_helper = create_question_form_helper(request)
+    question_form = question_helper.question_form
+    if request.user.is_authenticated:
+        answer_form = AnswerCreateForm()
+    else:
+        answer_form = ()
+
     if request.method == 'GET':
         new_question_id = request.session.pop('new_question_id', None)
+        updated_question_id = request.session.pop('updated_question_id', None)
         if new_question_id:
             # Новый вопрос
             question = Question.objects.get(pk=int(new_question_id))
             request.session['question_id'] = new_question_id
+        elif updated_question_id:
+            question = Question.objects.get(pk=int(updated_question_id))
         else:
             # Попытка найти вопрос по его заголовку, полученному из строки запроса.
             header = header.replace('-', ' ')
-            question = Question.objects.get(header=header)
-            if not question:
-                raise Http404("No question match the given query.")
+            try:
+                question = Question.objects.get(header=header)
+            except ObjectDoesNotExist:
+                return render_404_page(request)
             else:
                 request.session['question_id'] = str(question.pk)
 
     elif request.method == 'POST':
-        if question_form.is_valid() and question_form.is_bound:
+        if question_form.is_bound:
             # переход на страницу созданного вопроса
             question = question_helper.question
             request.session['new_question_id'] = str(question.pk)
             return redirect('question', str(question))
-        elif answer_form and answer_form.is_bound:
-            # создан ответ
-            question_id = request.session.get('question_id', None)
-            question = Question.objects.get(pk=int(question_id))
-            answer.question = question
-            answer.save()
 
     return render(request, 'question.html',
                   context={'question': question,
@@ -147,11 +175,8 @@ def vote_view(request):
             else:
                 vote_helper(request, obj=obj, down_vote_id=obj_id)
             
-    if request.META.has_key('HTTP_REFERER'):
-        return redirect(request.META['HTTP_REFERER'])
-    else:
-        request.session['update_question_id'] = str(question.pk)
-        return redirect('question', str(question))
+    request.session['updated_question_id'] = str(question.pk)
+    return redirect('question', str(question))
 
 
 def vote_helper(request, obj, up_vote_id=None, down_vote_id=None):
