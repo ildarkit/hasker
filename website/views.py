@@ -83,10 +83,24 @@ def question_list_view(request):
     if request.method == 'POST' and question:
         return redirect('question', str(question))
 
-    questions = Question.objects.order_by('-pub_date')
+    questions = Question.objects.all()
+    sorting = request.GET.get('sorting', None) or request.session.get('sorting', None)
+    if sorting:
+        if sorting == 'date':
+            sort = '-pub_date'
+        else:
+            sort = 'rating'
+        request.session['sorting'] = sorting
+    else:
+        sort = '-pub_date'
+    questions = questions.order_by(sort)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(questions, 20)
+    page = request.GET.get('page', None) or request.session.get('questions_page', None)
+    if page:
+        request.session['questions_page'] = page
+    else:
+        page = 1
+    paginator = Paginator(questions, 4)
     try:
         questions = paginator.page(page)
     except PageNotAnInteger:
