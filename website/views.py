@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
@@ -22,9 +21,10 @@ from .forms import ProfileCreateForm
 
 
 def render_404_page(request):
-    question_form = QuestionCreateForm()
+    question_helper = create_question_form_helper(request)
     return render(request, '404.html',
-                  context={'form': question_form})
+                  context={'form': question_helper.question_form,
+                           'tags': question_helper.tags})
 
 
 def create_question_form_helper(request):
