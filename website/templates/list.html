@@ -3,30 +3,31 @@
 {% for question in questions %}
     {{ question.header }}<br />
 {% endfor %}
+{% if questions.has_other_pages %}
 <nav aria-label="...">
   <ul class="pagination justify-content-center">
     {% if questions.has_previous %}
-    <li class="page-item">
+    <li class="page-item"><a class="page-link" href="?page={{ questions.previous_page_number }}">Previous</a></li>
     {% else %}
     <li class="page-item disable">
-    {% endif %}
       <span class="page-link">Previous</span>
     </li>
-    <li class="page-item"><a class="page-link" href="#">1</a></li>
-    <li class="page-item active">
-      <span class="page-link">
-        2
-        <span class="sr-only">(current)</span>
-      </span>
-    </li>
-    <li class="page-item"><a class="page-link" href="#">3</a></li>
+    {% endif %}
+    {% for i in questions.paginator.page_range %}
+      {% if questions.number == i %}
+        <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
     {% if questions.has_next %}
-    <li class="page-item">
+    <li class="page-item"><a class="page-link" href="?page={{ questions.next_page_number }}">Next</a></li>
     {% else %}
     <li class="page-item disable">
-    {% endif %}
-      <a class="page-link" href="#">Next</a>
+      <span class="page-link">Next</span>
     </li>
+    {% endif %}
   </ul>
 </nav>
+{% endif %}
 {% endblock content %}

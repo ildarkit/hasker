@@ -82,7 +82,18 @@ def question_list_view(request):
     question = question_helper.question
     if request.method == 'POST' and question:
         return redirect('question', str(question))
-    questions = Question.objects.all()
+
+    questions = Question.objects.order_by('-pub_date')
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(questions, 20)
+    try:
+        questions = paginator.page(page)
+    except PageNotAnInteger:
+        questions = paginator.page(1)
+    except EmptyPage:
+        questions = paginator.page(paginator.num_pages)
+
     return render(request, 'list.html', context={'questions': questions,
                                                  'form': question_helper.question_form,
                                                  'tags': question_helper.tags})
@@ -93,7 +104,7 @@ def search(request):
 
 
 def index(request):
-    if request.META['PATH_INFO'] != '/':
+    if request.path != '/':
         return render_404_page(request)
     else:
         return redirect('ask')
