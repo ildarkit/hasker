@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static "jquery-ui-1.12.1.custom/css/jquery-ui.min.css" %}">
     <link rel="stylesheet" href="{% static "jquery-ui-1.12.1.custom/css/jquery-ui.structure.min.css" %}">
     <link rel="stylesheet" href="{% static "jquery-ui-1.12.1.custom/css/jquery-ui.theme.min.css" %}">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
     <title>
         {% block title %}Poor Man's Stackoverflow{% endblock title %}
     </title>
@@ -29,11 +30,14 @@
               </form>
           </li>
           {% if user.is_authenticated %}
+          <li class="nav-item" style="color:grey">
+              <a class="nav-link" href="{% url 'settings' %}"><i class="fas fa-user-circle fa-lg"></i></a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'settings' %}">{{ user.username }}</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">Log out</a>
+            <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt fa-lg"></i></a>
           </li>
           {% else %}
           <li class="nav-item">

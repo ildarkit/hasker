@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="container">
 <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
@@ -9,10 +10,11 @@
     <a class="dropdown-item" href="?sorting=rate">Rating</a>
     <a class="dropdown-item" href="?sorting=date">Published date</a>
   </div>
-</div>
+</div><br>
 {% for question in questions %}
     {{ question.header }}<br />
 {% endfor %}
+<br>
 {% if questions.has_other_pages %}
 <nav aria-label="...">
   <ul class="pagination justify-content-center">
@@ -40,4 +42,5 @@
   </ul>
 </nav>
 {% endif %}
+</div>
 {% endblock content %}

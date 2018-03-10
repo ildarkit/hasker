@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="container">
   {% if user.is_authenticated %}
+    <br><h5>You are already logged in, {{ user.username }}.</h5><br>
     <a href="{% url 'logout' %}" class="btn btn-secondary my-2 my-sm-0" role="button">Exit</a>
   {% else %}
-  <h2>Log in</h2>
+  <br><h2>Log in</h2><br>
   <form method="post">
     {% csrf_token %}
     {% for field in login_form %}
@@ -19,4 +21,5 @@
     <button type="submit" class="btn btn-primary">Enter</button>
   </form>
   {% endif %}
+</div>
 {% endblock %}

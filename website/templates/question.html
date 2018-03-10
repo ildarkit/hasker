@@ -1,11 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-    {{ question }}<br />
+<div class="container">
+<div class="row">
+    <div class="col-lg-12">
+        <br><h3>{{ question.header }}</h3><br>
+    </div>
+    <div class="row">
+        <div class="col-2">
+            <div class="row">
+                <div class="col-12">
+                    {% if user.is_authenticated and user != question.author.user %}
+                    <a href="?up_vote={{ question.pk }}"><i class="fas fa-angle-up fa-3x"></i></a>
+                    {% else %}
+                    <i class="fas fa-angle-up fa-3x" style="color:grey"></i>
+                    {% endif %}
+                </div>
+                <div class="col-12"><p class="text-center">{{ question.rating }}</p></div>
+                <div class="col-12">
+                    {% if user.is_authenticated and user != question.author.user %}
+                    <a href="?down_vote={{ question.pk }}"><i class="fas fa-angle-down fa-3x"></i></a>
+                    {% else %}
+                    <i class="fas fa-angle-down fa-3x" style="color:grey"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-10">
+            <p class="text-justify font-weight-normal">{{ question.text }}</p>
+            <div class="row">
+                <div class="col-10">
+                    {{ question.tags }}
+                </div>
+                <div class="col-2">
+                    {{ question.author.user }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% for answer in answers %}
 {{answer.answer_text}}
 {% endfor %}
 {% if user.is_authenticated and user != question.author.user %}
-<h4>Your answer</h4>
+<br><h4>Your answer</h4>
 <form method="post" action="{% url 'answer' %}?question_id={{ question.pk }}">
     {% csrf_token %}
     {% for field in answer_form %}
@@ -19,6 +57,7 @@
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 {% endif %}
+</div>
 {% if answers and answers.has_other_pages %}
 <nav aria-label="...">
   <ul class="pagination justify-content-center">
