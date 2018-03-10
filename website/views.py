@@ -14,6 +14,7 @@ from .models import Question
 from .models import Answer
 from .models import Profile
 from .forms import UserForm
+from .forms import LoginUserForm
 from .forms import AnswerCreateForm
 from .forms import QuestionCreateForm
 from .forms import UserCreateForm
@@ -151,6 +152,7 @@ def question_view(request, header):
     """ Страница вопроса со списком ответов """
     question_helper = create_question_form_helper(request)
     question_form = question_helper.question_form
+    answers = ()
     if request.user.is_authenticated:
         answer_form = AnswerCreateForm()
     else:
@@ -175,6 +177,21 @@ def question_view(request, header):
             else:
                 request.session['question_id'] = str(question.pk)
 
+        # Пагинация ответов на странице вопроса по 30 шт.
+        page = request.GET.get('page', None) or request.session.get('answers_page', None)
+        if page:
+            request.session['answers_page'] = page
+        else:
+            page = 1
+        answers = question.answers.all()
+        paginator = Paginator(answers, 4)
+        try:
+            answers = paginator.page(page)
+        except PageNotAnInteger:
+            answers = paginator.page(1)
+        except EmptyPage:
+            answers = paginator.page(paginator.num_pages)
+
     elif request.method == 'POST':
         if question_form.is_bound:
             # переход на страницу созданного вопроса
@@ -186,6 +203,7 @@ def question_view(request, header):
                   context={'question': question,
                            'form': question_form,
                            'answer_form': answer_form,
+                           'answers': answers,
                            'tags': question_helper.tags})
 
 
@@ -225,6 +243,21 @@ def vote_helper(request, obj, up_vote_id=None, down_vote_id=None):
 
 def tag(request):
     pass
+
+
+def login_view(request):
+    if request.method == 'GET':
+        login_form = LoginUserForm()
+    elif request.method == 'POST':
+        login_form = LoginUserForm(request.POST)
+        if login_form.is_valid():
+            username = login_form.cleaned_data.get('username')
+            password = login_form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('ask')
+    return render(request, 'login.html', context={'login_form': login_form})
 
 
 def logout_view(request):
