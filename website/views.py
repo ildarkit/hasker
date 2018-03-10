@@ -246,6 +246,18 @@ def tag(request):
 
 
 def login_view(request):
+    """ Страница авторизации """
+    tags = ()
+    question_form = ()
+    if request.user.is_authenticated:
+        # Форма задавания вопроса на странице авторизации
+        question_helper = create_question_form_helper(request)
+        question_form = question_helper.question_form
+        question = question_helper.question
+        tags = question_helper.tags
+        if question_form.is_bound and question:
+            return redirect('question', str(question))
+
     if request.method == 'GET':
         login_form = LoginUserForm()
     elif request.method == 'POST':
@@ -257,7 +269,8 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 return redirect('ask')
-    return render(request, 'login.html', context={'login_form': login_form})
+    return render(request, 'login.html', context={'form': question_form, 'tags': tags,
+                                                  'login_form': login_form})
 
 
 def logout_view(request):
