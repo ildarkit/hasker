@@ -18,7 +18,7 @@ class QuestionCreateForm(forms.ModelForm):
         tags = self.cleaned_data['tags']
         sep = ', '
         tags = set(tags.strip(sep).split(sep))
-        tags = sep.join(tags)
+        tags = sep.join(map(str.strip, tags))
         return tags
 
 

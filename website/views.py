@@ -177,27 +177,21 @@ def question_view(request, header):
             else:
                 request.session['question_id'] = str(question.pk)
 
-        # Пагинация ответов на странице вопроса по 30 шт.
-        page = request.GET.get('page', None) or request.session.get('answers_page', None)
-        if page:
-            request.session['answers_page'] = page
-        else:
-            page = 1
-        answers = question.answers.all()
-        paginator = Paginator(answers, 4)
-        try:
-            answers = paginator.page(page)
-        except PageNotAnInteger:
-            answers = paginator.page(1)
-        except EmptyPage:
-            answers = paginator.page(paginator.num_pages)
+        answers = answer_pagination(request, question)
 
     elif request.method == 'POST':
         if question_form.is_bound:
-            # переход на страницу созданного вопроса
             question = question_helper.question
-            request.session['new_question_id'] = str(question.pk)
-            return redirect('question', str(question))
+            if question:
+                # переход на страницу созданного вопроса
+                request.session['new_question_id'] = str(question.pk)
+                return redirect('question', str(question))
+            else:
+                # ошибка валидации формы вопроса
+                # требуется восстановить вопрос, на странице которого
+                # создавался новый вопрос
+                question = Question.objects.get(pk=request.session['question_id'])
+                answers = answer_pagination(request, question)
 
     return render(request, 'question.html',
                   context={'question': question,
@@ -207,38 +201,76 @@ def question_view(request, header):
                            'tags': question_helper.tags})
 
 
+def answer_pagination(request, question):
+    # Пагинация ответов на странице вопроса по 30 шт.
+    page = request.GET.get('page', None) or request.session.get('answers_page', None)
+    if page:
+        request.session['answers_page'] = page
+    else:
+        page = 1
+    answers = question.answers.all()
+    paginator = Paginator(answers, 4)
+    try:
+        answers = paginator.page(page)
+    except PageNotAnInteger:
+        answers = paginator.page(1)
+    except EmptyPage:
+        answers = paginator.page(paginator.num_pages)
+    return answers
+
+
 @login_required
 def vote_view(request):
-    question_id = int(request.GET['question_id'])
+    question_id = request.GET.get('question_id')
     question = Question.objects.get(pk=question_id)
-    for key in ('up_vote', 'down_vote', 'up_answer_id', 'down_answer_id'):
-        obj_id = request.GET.get(key, None)
-        if obj_id:
-            obj = Answer if 'answer' in key else Question
-            if 'up' in key:
-                vote_helper(request, obj=obj, up_vote_id=obj_id)
-            else:
-                vote_helper(request, obj=obj, down_vote_id=obj_id)
-            
+    votes = {'up_vote': request.GET.get('up_vote', None),
+             'down_vote': request.GET.get('down_vote', None),
+             'up_answer_id': request.GET.get('up_answer_id', None),
+             'down_answer_id': request.GET.get('down_answer_id', None)
+             }
+    vote_helper(request, obj=question, **votes)
+
     request.session['updated_question_id'] = str(question.pk)
     return redirect('question', str(question))
 
 
-def vote_helper(request, obj, up_vote_id=None, down_vote_id=None):
-    vote_id = up_vote_id or down_vote_id
-    db_object = obj.objects.get(pk=int(vote_id))
-    if up_vote_id:
-        voted = db_object.up_votes.filter(username=request.user.username)
-    else:
-        voted = db_object.down_votes.filter(username=request.user.username)
-    if not voted:
-        if up_vote_id:
-            db_object.up_votes.add(request.user)
-            db_object.rating += 1
+def vote_helper(request, obj, **votes):
+    up_voted = None
+    down_voted = None
+    vote_type = ''
+    for key in votes:
+        if votes[key]:
+            vote_type = key
+            if 'answer' in key:
+                obj = Answer.objects.get(pk=votes[key])
+            try:
+                up_voted = obj.up_votes.get(pk=request.user.pk)
+            except ObjectDoesNotExist:
+                pass
+            try:
+                down_voted = obj.down_votes.get(pk=request.user.pk)
+            except ObjectDoesNotExist:
+                break
+
+    if 'up' in vote_type and not up_voted:
+        obj.rating += 1
+        if not down_voted:
+            # голосуем "вверх", если нет голоса "вниз"
+            obj.up_votes.add(request.user)
         else:
-            db_object.down_votes.add(request.user)
-            db_object.rating -= 1
-        db_object.save()
+            # отмена своего голоса пользователем
+            obj.down_votes.remove(request.user)
+
+    elif 'down' in vote_type and not down_voted:
+        obj.rating -= 1
+        if not up_voted:
+            # голосуем "вниз", если нет голоса "вверх"
+            obj.down_votes.add(request.user)
+        else:
+            # отмена своего голоса пользователем
+            obj.up_votes.remove(request.user)
+
+    obj.save()
 
 
 def tag(request):

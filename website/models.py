@@ -39,6 +39,9 @@ class Question(models.Model):
     def __str__(self):
         return self.header.lower().replace(' ', '-')
 
+    def tags_as_list(self):
+        return self.tags.split(', ')
+
 
 class Tag(models.Model):
     name = models.SlugField(unique=True)

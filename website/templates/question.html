@@ -9,7 +9,7 @@
         <div class="col-2">
             <div class="btn-group-vertical btn-group-sm" role="group">
                 {% if user.is_authenticated and user != question.author.user %}
-                <a class="btn btn-outline-primary" role="button" href="?up_vote={{ question.pk }}">
+                <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?up_vote=yes&amp;question_id={{ question.pk }}">
                     <i class="fas fa-caret-up fa-2x"></i>
                 </a>
                 {% else %}
@@ -17,9 +17,9 @@
                     <i class="fas fa-angle-up fa-2x" style="color:white"></i>
                 </a>
                 {% endif %}
-                <a class="btn btn-link disabled" role="button" aria-disabled="true">{{ question.rating }}</a>
+                <a class="btn btn-link disabled alert-link" role="button" aria-disabled="true">{{ question.rating }}</a>
                 {% if user.is_authenticated and user != question.author.user %}
-                <a class="btn btn-outline-primary" role="button" href="?down_vote={{ question.pk }}">
+                <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?down_vote=yes&amp;question_id={{ question.pk }}">
                     <i class="fas fa-caret-down fa-2x"></i>
                 </a>
                 {% else %}
@@ -33,10 +33,12 @@
             <p class="text-justify font-weight-normal">{{ question.text }}</p>
             <div class="row">
                 <div class="col-10">
-                    {{ question.tags }}
+                    {% for tag in question.tags_as_list %}
+                    <a class="btn btn-outline-primary btn-sm" role="button" href="{% url 'tag' %}{{ tag }}/">{{ tag }}</a>
+                    {% endfor %}
                 </div>
                 <div class="col-2">
-                    {{ question.author.user }}
+                    <p class="font-weight-bold">{{ question.author.user }}</p>
                 </div>
             </div>
         </div>
