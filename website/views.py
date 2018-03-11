@@ -273,8 +273,28 @@ def vote_helper(request, obj, **votes):
     obj.save()
 
 
-def tag(request):
-    pass
+def tag_view(request, tag_name):
+    """ Страница с результатами поиска по тэгу """
+    # форма задавания вопроса
+    question_helper = create_question_form_helper(request)
+    question_form = question_helper.question_form
+    question = question_helper.question
+
+    # все вопросы с нужным тэгом
+    questions = Question.objects.all()
+    questions = questions.filter(related_tags__name=tag_name)
+
+    if request.method == 'POST':
+        if question_form.is_bound and question:
+            # создан новый вопрос на странице
+            # с результатами поиска по тэгу
+            return redirect('question', str(question))
+
+    return render(request, 'tag.html',
+                  {'questions': questions,
+                   'form': question_form,
+                   'tags': question_helper.tags}
+                  )
 
 
 def login_view(request):
