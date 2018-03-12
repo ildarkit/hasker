@@ -226,31 +226,38 @@ def vote_view(request):
     votes = {'up_vote': request.GET.get('up_vote', None),
              'down_vote': request.GET.get('down_vote', None),
              'up_answer_id': request.GET.get('up_answer_id', None),
-             'down_answer_id': request.GET.get('down_answer_id', None)
+             'down_answer_id': request.GET.get('down_answer_id', None),
+             'correct_answer_id': request.GET.get('correct_answer_id', None)
              }
-    vote_helper(request, obj=question, **votes)
+    vote_helper(request, question, **votes)
 
     request.session['updated_question_id'] = str(question.pk)
     return redirect('question', str(question))
 
 
-def vote_helper(request, obj, **votes):
+def vote_helper(request, question, **votes):
     up_voted = None
     down_voted = None
     vote_type = ''
+    obj = question
     for key in votes:
         if votes[key]:
             vote_type = key
-            if 'answer' in key:
+            if 'correct' in key:
+                question = obj
                 obj = Answer.objects.get(pk=votes[key])
-            try:
-                up_voted = obj.up_votes.get(pk=request.user.pk)
-            except ObjectDoesNotExist:
-                pass
-            try:
-                down_voted = obj.down_votes.get(pk=request.user.pk)
-            except ObjectDoesNotExist:
-                break
+            else:
+                if 'answer' in key:
+                    obj = Answer.objects.get(pk=votes[key])
+                try:
+                    up_voted = obj.up_votes.get(pk=request.user.pk)
+                except ObjectDoesNotExist:
+                    pass
+                try:
+                    down_voted = obj.down_votes.get(pk=request.user.pk)
+                except ObjectDoesNotExist:
+                    pass
+            break
 
     if 'up' in vote_type and not up_voted:
         obj.rating += 1
@@ -269,6 +276,17 @@ def vote_helper(request, obj, **votes):
         else:
             # отмена своего голоса пользователем
             obj.up_votes.remove(request.user)
+
+    elif 'correct' in vote_type:
+        # автор вопроса устанавливает признак правильного ответа
+        try:
+            already_incorrect_answer = question.answers.get(is_correct=True)
+        except ObjectDoesNotExist:
+            already_incorrect_answer = None
+        if already_incorrect_answer and already_incorrect_answer.pk != obj.pk:
+            already_incorrect_answer.is_correct = False
+            already_incorrect_answer.save()
+        obj.is_correct = not obj.is_correct
 
     obj.save()
 
