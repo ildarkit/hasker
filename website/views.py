@@ -236,59 +236,18 @@ def vote_view(request):
 
 
 def vote_helper(request, question, **votes):
-    up_voted = None
-    down_voted = None
-    vote_type = ''
-    obj = question
+
     for key in votes:
         if votes[key]:
-            vote_type = key
-            if 'correct' in key:
-                question = obj
-                obj = Answer.objects.get(pk=votes[key])
+            if 'vote' in key:
+                question.voting(request.user, key)
             else:
-                if 'answer' in key:
-                    obj = Answer.objects.get(pk=votes[key])
-                try:
-                    up_voted = obj.up_votes.get(pk=request.user.pk)
-                except ObjectDoesNotExist:
-                    pass
-                try:
-                    down_voted = obj.down_votes.get(pk=request.user.pk)
-                except ObjectDoesNotExist:
-                    pass
+                answer = Answer.objects.get(pk=votes[key])
+                if 'correct' in key:
+                    question.set_correct_answer(answer)
+                elif 'answer' in key:
+                    question.answer_voting(request.user, answer, key)
             break
-
-    if 'up' in vote_type and not up_voted:
-        obj.rating += 1
-        if not down_voted:
-            # голосуем "вверх", если нет голоса "вниз"
-            obj.up_votes.add(request.user)
-        else:
-            # отмена своего голоса пользователем
-            obj.down_votes.remove(request.user)
-
-    elif 'down' in vote_type and not down_voted:
-        obj.rating -= 1
-        if not up_voted:
-            # голосуем "вниз", если нет голоса "вверх"
-            obj.down_votes.add(request.user)
-        else:
-            # отмена своего голоса пользователем
-            obj.up_votes.remove(request.user)
-
-    elif 'correct' in vote_type:
-        # автор вопроса устанавливает признак правильного ответа
-        try:
-            already_incorrect_answer = question.answers.get(is_correct=True)
-        except ObjectDoesNotExist:
-            already_incorrect_answer = None
-        if already_incorrect_answer and already_incorrect_answer.pk != obj.pk:
-            already_incorrect_answer.is_correct = False
-            already_incorrect_answer.save()
-        obj.is_correct = not obj.is_correct
-
-    obj.save()
 
 
 def tag_view(request, tag_name):
