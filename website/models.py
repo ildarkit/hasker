@@ -64,4 +64,4 @@ class Answer(models.Model):
     #    self.email
 
     class Meta:
-        ordering = ["rating", "-pub_date"]
+        ordering = ["-rating", "-pub_date"]
