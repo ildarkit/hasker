@@ -14,7 +14,7 @@
                     <i class="fas fa-angle-up fa-2x"></i>
                 </a>
                 {% else %}
-                <a class="btn btn-primary disabled" role="button">
+                <a class="btn btn-secondary disabled" role="button">
                     <i class="fas fa-angle-up fa-2x" style="color:white"></i>
                 </a>
                 {% endif %}
@@ -24,7 +24,7 @@
                     <i class="fas fa-angle-down fa-2x"></i>
                 </a>
                 {% else %}
-                <a class="btn btn-primary disabled" role="button">
+                <a class="btn btn-secondary disabled" role="button">
                     <i class="fas fa-angle-down fa-2x" style="color:white"></i>
                 </a>
                 {% endif %}
@@ -52,22 +52,22 @@
         {% for answer in answers %}
         <div class="col-1">
             <div class="btn-group-vertical btn-group-sm" role="group">
-                {% if user.is_authenticated and user != answer.author.user %}
+                {% if user != answer.author.user and user != question.author.user %}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?up_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
                     <i class="fas fa-angle-up fa-2x"></i>
                 </a>
                 {% else %}
-                <a class="btn btn-primary disabled" role="button">
+                <a class="btn btn-secondary disabled" role="button">
                     <i class="fas fa-angle-up fa-2x" style="color:white"></i>
                 </a>
                 {% endif %}
                 <a class="btn btn-link disabled alert-link" role="button" aria-disabled="true">{{ answer.rating }}</a>
-                {% if user.is_authenticated and user != answer.author.user %}
+                {% if user != answer.author.user and user != question.author.user%}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?down_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
                     <i class="fas fa-angle-down fa-2x"></i>
                 </a>
                 {% else %}
-                <a class="btn btn-primary disabled" role="button">
+                <a class="btn btn-secondary disabled" role="button">
                     <i class="fas fa-angle-down fa-2x" style="color:white"></i>
                 </a>
                 {% endif %}
