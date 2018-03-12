@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
+    {# вопрос #}
 <div class="row">
     <div class="col-lg-12">
         <br><h3>{{ question.header }}</h3><br>
     </div>
     <div class="row">
-        <div class="col-2">
+        <div class="col-1">
             <div class="btn-group-vertical btn-group-sm" role="group">
                 {% if user.is_authenticated and user != question.author.user %}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?up_vote=yes&amp;question_id={{ question.pk }}">
-                    <i class="fas fa-caret-up fa-2x"></i>
+                    <i class="fas fa-angle-up fa-2x"></i>
                 </a>
                 {% else %}
                 <a class="btn btn-primary disabled" role="button">
@@ -20,7 +21,7 @@
                 <a class="btn btn-link disabled alert-link" role="button" aria-disabled="true">{{ question.rating }}</a>
                 {% if user.is_authenticated and user != question.author.user %}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?down_vote=yes&amp;question_id={{ question.pk }}">
-                    <i class="fas fa-caret-down fa-2x"></i>
+                    <i class="fas fa-angle-down fa-2x"></i>
                 </a>
                 {% else %}
                 <a class="btn btn-primary disabled" role="button">
@@ -29,7 +30,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="col-10">
+        <div class="col-11">
             <p class="text-justify font-weight-normal">{{ question.text }}</p>
             <div class="row">
                 <div class="col-10">
@@ -43,11 +44,52 @@
             </div>
         </div>
     </div>
+    {# список ответов #}
+<div class="row">
+        {% for answer in answers %}
+        <div class="col-1">
+            <div class="btn-group-vertical btn-group-sm" role="group">
+                {% if user.is_authenticated and user != answer.author.user %}
+                <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?up_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
+                    <i class="fas fa-angle-up fa-2x"></i>
+                </a>
+                {% else %}
+                <a class="btn btn-primary disabled" role="button">
+                    <i class="fas fa-angle-up fa-2x" style="color:white"></i>
+                </a>
+                {% endif %}
+                <a class="btn btn-link disabled alert-link" role="button" aria-disabled="true">{{ answer.rating }}</a>
+                {% if user.is_authenticated and user != answer.author.user %}
+                <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?down_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
+                    <i class="fas fa-angle-down fa-2x"></i>
+                </a>
+                {% else %}
+                <a class="btn btn-primary disabled" role="button">
+                    <i class="fas fa-angle-down fa-2x" style="color:white"></i>
+                </a>
+                {% endif %}
+                {% if user.is_authenticated and user != answer.author.user %}
+                <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?up_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
+                    <i class="fas fa-angle-up fa-2x"></i>
+                </a>
+                {% else %}
+                <a class="btn btn-link disabled" role="button">
+                    <i class="fas fa-star fa-sm"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-11">
+            <p class="text-justify font-weight-normal">{{ answer.answer_text }}</p>
+            <div class="row">
+                <div class="col-12">
+                    <p class="font-weight-bold">{{ answer.author.user }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
 </div>
-
-{% for answer in answers %}
-{{answer.answer_text}}
-{% endfor %}
+</div>
 {% if user.is_authenticated and user != question.author.user %}
 <br><h4>Your answer</h4>
 <form method="post" action="{% url 'answer' %}?question_id={{ question.pk }}">
