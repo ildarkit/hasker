@@ -3,7 +3,7 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hasker.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.base")
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
@@ -19,4 +19,10 @@ if __name__ == "__main__":
                 "forget to activate a virtual environment?"
             )
         raise
+
+    # This allows easy placement of apps within the interior
+    # test_cookie directory.
+    current_path = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(os.path.join(current_path, 'website'))
+
     execute_from_command_line(sys.argv)
