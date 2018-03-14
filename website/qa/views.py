@@ -111,7 +111,7 @@ def question_list_view(request):
     except EmptyPage:
         questions = paginator.page(paginator.num_pages)
 
-    return render(request, 'list.html', context={'questions': questions,
+    return render(request, 'qa/list.html', context={'questions': questions,
                                                  'form': question_helper.question_form,
                                                  'tags': question_helper.tags})
 
@@ -184,7 +184,7 @@ def question_view(request, header):
                 question = Question.objects.get(pk=request.session['question_id'])
                 answers = answer_pagination(request, question)
 
-    return render(request, 'question.html',
+    return render(request, 'qa/question.html',
                   context={'question': question,
                            'form': question_form,
                            'answer_form': answer_form,

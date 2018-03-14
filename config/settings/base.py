@@ -28,6 +28,8 @@ STATIC_ROOT = root('static_root')
 
 STATICFILES_DIRS = [root('static')]
 
+STATIC_URL = '/static/'
+
 # Application definition
 
 INSTALLED_APPS = [
