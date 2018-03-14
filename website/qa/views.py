@@ -13,6 +13,24 @@ from .models import Answer
 from .forms import AnswerCreateForm
 from .forms import QuestionCreateForm
 
+from website.profiles.models import Profile
+
+
+def render_404_page(request):
+    question_helper = create_question_form_helper(request)
+    if request.method == 'POST':
+        return redirect('question', str(question_helper.question))
+    return render(request, '404.html',
+                  context={'form': question_helper.question_form,
+                           'tags': question_helper.tags})
+
+
+def index(request):
+    if request.path != '/':
+        return render_404_page(request)
+    else:
+        return redirect('ask')
+
 
 def create_question_form_helper(request):
     """ Вспомогательная функция создания формы вопроса"""

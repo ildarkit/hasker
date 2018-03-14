@@ -12,8 +12,6 @@ INSTALLED_APPS += ['debug_toolbar', ]
 
 MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware',]
 
-ROOT_URLCONF = 'config.urls.local'
-
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
@@ -21,7 +19,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'HOST': 'localhost',
-        'NAME': 'config',
+        'NAME': 'hasker',
         'USER': 'test',
         'PASSWORD': 'test'
     }

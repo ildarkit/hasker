@@ -31,9 +31,9 @@ STATICFILES_DIRS = [root('static')]
 # Application definition
 
 INSTALLED_APPS = [
-    'profiles.apps.ProfilesConfig',
-    'qa.apps.QaConfig',
-    'search.app.SearchConfig',
+    'website.profiles.apps.ProfilesConfig',
+    'website.qa.apps.QaConfig',
+    'website.search.apps.SearchConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls.base'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -101,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'profiles.User'
+AUTH_USER_MODEL = 'profiles.Profile'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
