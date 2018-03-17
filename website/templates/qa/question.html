@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-1">
             <div class="btn-group-vertical btn-group-sm" role="group">
-                {% if user.is_authenticated and user != question.author.user %}
+                {% if user.is_authenticated and user != question.author %}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?up_vote=yes&amp;question_id={{ question.pk }}">
                     <i class="fas fa-angle-up fa-2x"></i>
                 </a>
@@ -19,7 +19,7 @@
                 </a>
                 {% endif %}
                 <a class="btn btn-link disabled alert-link" role="button" aria-disabled="true">{{ question.rating }}</a>
-                {% if user.is_authenticated and user != question.author.user %}
+                {% if user.is_authenticated and user != question.author %}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?down_vote=yes&amp;question_id={{ question.pk }}">
                     <i class="fas fa-angle-down fa-2x"></i>
                 </a>
@@ -42,7 +42,7 @@
                     <p class="font-weight-bold">Avatar</p>
                 </div>
                 <div class="p-2">
-                    <p class="font-weight-bold">{{ question.author.user }}</p>
+                    <p class="font-weight-bold">{{ question.author }}</p>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
         {% for answer in answers %}
         <div class="col-1">
             <div class="btn-group-vertical btn-group-sm" role="group">
-                {% if user != answer.author.user and user != question.author.user %}
+                {% if user != answer.author and user != question.author %}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?up_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
                     <i class="fas fa-angle-up fa-2x"></i>
                 </a>
@@ -62,7 +62,7 @@
                 </a>
                 {% endif %}
                 <a class="btn btn-link disabled alert-link" role="button" aria-disabled="true">{{ answer.rating }}</a>
-                {% if user != answer.author.user and user != question.author.user%}
+                {% if user != answer.author and user != question.author %}
                 <a class="btn btn-outline-primary" role="button" href="{% url 'vote' %}?down_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
                     <i class="fas fa-angle-down fa-2x"></i>
                 </a>
@@ -71,7 +71,7 @@
                     <i class="fas fa-angle-down fa-2x" style="color:white"></i>
                 </a>
                 {% endif %}
-                {% if user.is_authenticated and user == question.author.user %}
+                {% if user.is_authenticated and user == question.author %}
                 <a class="btn btn-link" role="button" href="{% url 'vote' %}?correct_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
                     {% if answer.is_correct %}
                     <i class="fas fa-star fa-sm" style="color:red"></i>
@@ -93,14 +93,14 @@
                     <p class="font-weight-bold">Avatar</p>
                 </div>
                 <div class="p-2">
-                    <p class="font-weight-bold">{{ answer.author.user }}</p>
+                    <p class="font-weight-bold">{{ answer.author }}</p>
                 </div>
             </div>
         </div>
         {% endfor %}
 </div>
 </div>
-{% if user.is_authenticated and user != question.author.user %}
+{% if user.is_authenticated and user != question.author %}
 <br><h4>Your answer</h4>
 <form method="post" action="{% url 'answer' %}?question_id={{ question.pk }}">
     {% csrf_token %}

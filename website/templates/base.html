@@ -25,8 +25,9 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
         <ul class="navbar-nav">
           <li class="nav-item">
-              <form class="form-inline my-2 my-lg-0">
-                  <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" formaction="search">
+              <form class="form-inline my-2 my-lg-0" method="get" action="{% url 'search' %}">
+                  <input class="form-control mr-sm-2" type="search" placeholder="Search"
+                         aria-label="Search" formaction="search" name="q" id="id_q">
               </form>
           </li>
           {% if user.is_authenticated %}

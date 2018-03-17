@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <br><h2>Search result</h2><br>
+{% for question in questions%}
+    {{question}}
+{% endfor %}
+</div>
+{% endblock %}
