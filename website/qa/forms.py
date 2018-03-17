@@ -17,9 +17,24 @@ class QuestionCreateForm(forms.ModelForm):
         tags = sep.join(map(str.strip, tags))
         return tags
 
+    def set_question(self, request):
+        question = None
+        if self.is_valid():
+            question = self.save(commit=False)
+            question.set_author(request)
+            question.add_question_tags()
+        return question
+
 
 class AnswerCreateForm(forms.ModelForm):
 
     class Meta:
         model = Answer
         fields = ('answer_text', )
+
+    def set_answer(self, request):
+        answer = None
+        if self.is_valid():
+            answer = self.save(commit=False)
+            answer.set_author(request)
+        return answer

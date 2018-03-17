@@ -1,28 +1,18 @@
-from collections import namedtuple
-
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from .models import Tag
 from .models import Question
 from .models import Answer
 from .forms import AnswerCreateForm
-from .forms import QuestionCreateForm
 
-from website.profiles.models import Profile
-
-
-def render_404_page(request):
-    question_helper = create_question_form_helper(request)
-    if request.method == 'POST':
-        return redirect('question', str(question_helper.question))
-    return render(request, '404.html',
-                  context={'form': question_helper.question_form,
-                           'tags': question_helper.tags})
+from website.helpers import voting
+from website.helpers import pagination
+from website.helpers import render_404_page
+from website.helpers import create_answer_form_helper
+from website.helpers import create_question_form_helper
 
 
 def index(request):
@@ -32,53 +22,6 @@ def index(request):
         return redirect('ask')
 
 
-def create_question_form_helper(request):
-    """ Вспомогательная функция создания формы вопроса"""
-    tags = []
-    question = None
-    question_form = None
-    if request.method == 'POST':
-        question_form = QuestionCreateForm(request.POST)
-        if question_form.is_valid():
-            question = question_form.save(commit=False)
-            question.author = Profile.objects.get(user_id=request.user.pk)
-            question.save()
-            add_question_tags(question)
-            request.session['new_question_id'] = str(question.pk)
-    elif request.method == 'GET':
-        tags = Tag.objects.all()
-        question_form = QuestionCreateForm()
-    QuestionHelper = namedtuple('QuestionHelper', ('question_form', 'question', 'tags'))
-    return QuestionHelper(question_form, question, tags)
-
-
-def add_question_tags(question):
-    related_tags = []
-    for tag_name in question.tags.split(','):
-        tag_name = tag_name.strip()
-        try:
-            tag = Tag.objects.get(name=tag_name)
-        except ObjectDoesNotExist:
-            tag = Tag.objects.create(name=tag_name)
-        related_tags.append(tag)
-    question.related_tags.add(*related_tags)
-
-
-def create_answer_form_helper(request):
-    """ Вспомогательная функция создания формы ответа"""
-    answer = None
-    answer_form = None
-    if request.method == 'POST':
-        answer_form = AnswerCreateForm(request.POST)
-        if answer_form.is_valid():
-            answer = answer_form.save(commit=False)
-            answer.author = Profile.objects.get(user_id=request.user.pk)
-    elif request.method == 'GET':
-        answer_form = AnswerCreateForm()
-    AnswerHelper = namedtuple('AnswerHelper', ('answer_form', 'answer'))
-    return AnswerHelper(answer_form, answer)
-
-
 def question_list_view(request):
     """Главная страница со списком вопросов"""
     question_helper = create_question_form_helper(request)
@@ -86,34 +29,13 @@ def question_list_view(request):
     if request.method == 'POST' and question:
         return redirect('question', str(question))
 
-    questions = Question.objects.all()
-    sorting = request.GET.get('sorting', None) or request.session.get('sorting', None)
-    if sorting:
-        if sorting == 'date':
-            sort = '-pub_date'
-        else:
-            sort = 'rating'
-        request.session['sorting'] = sorting
-    else:
-        sort = '-pub_date'
-    questions = questions.order_by(sort)
+    questions = pagination(request, Question.objects.all(),
+                           4, 'questions_page', sorting=True)
 
-    page = request.GET.get('page', None) or request.session.get('questions_page', None)
-    if page:
-        request.session['questions_page'] = page
-    else:
-        page = 1
-    paginator = Paginator(questions, 4)
-    try:
-        questions = paginator.page(page)
-    except PageNotAnInteger:
-        questions = paginator.page(1)
-    except EmptyPage:
-        questions = paginator.page(paginator.num_pages)
-
-    return render(request, 'qa/list.html', context={'questions': questions,
-                                                 'form': question_helper.question_form,
-                                                 'tags': question_helper.tags})
+    return render(request, 'qa/list.html',
+                  context={'questions': questions,
+                           'form': question_helper.question_form,
+                           'tags': question_helper.tags})
 
 
 def answer_view(request):
@@ -168,7 +90,8 @@ def question_view(request, header):
             else:
                 request.session['question_id'] = str(question.pk)
 
-        answers = answer_pagination(request, question)
+        answers = pagination(request, question.answers.all(),
+                             4, 'answers_page')
 
     elif request.method == 'POST':
         if question_form.is_bound:
@@ -182,7 +105,7 @@ def question_view(request, header):
                 # требуется восстановить вопрос, на странице которого
                 # создавался новый вопрос
                 question = Question.objects.get(pk=request.session['question_id'])
-                answers = answer_pagination(request, question)
+                answers = pagination(request, question.answers.all(), 4, 'answers_page')
 
     return render(request, 'qa/question.html',
                   context={'question': question,
@@ -192,51 +115,14 @@ def question_view(request, header):
                            'tags': question_helper.tags})
 
 
-def answer_pagination(request, question):
-    # Пагинация ответов на странице вопроса по 30 шт.
-    page = request.GET.get('page', None) or request.session.get('answers_page', None)
-    if page:
-        request.session['answers_page'] = page
-    else:
-        page = 1
-    answers = question.answers.all()
-    paginator = Paginator(answers, 4)
-    try:
-        answers = paginator.page(page)
-    except PageNotAnInteger:
-        answers = paginator.page(1)
-    except EmptyPage:
-        answers = paginator.page(paginator.num_pages)
-    return answers
-
-
 @login_required
 def vote_view(request):
     question_id = request.GET.get('question_id')
     question = Question.objects.get(pk=question_id)
-    votes = {'up_vote': request.GET.get('up_vote', None),
-             'down_vote': request.GET.get('down_vote', None),
-             'up_answer_id': request.GET.get('up_answer_id', None),
-             'down_answer_id': request.GET.get('down_answer_id', None),
-             'correct_answer_id': request.GET.get('correct_answer_id', None)
-             }
-    vote_helper(request, question, votes)
+
+    voting(request, question)
 
     request.session['updated_question_id'] = str(question.pk)
     return redirect('question', str(question))
 
-
-def vote_helper(request, question, votes):
-
-    for key in votes:
-        if votes[key]:
-            if 'vote' in key:
-                question.voting(request.user, key)
-            else:
-                answer = Answer.objects.get(pk=votes[key])
-                if 'correct' in key:
-                    question.set_correct_answer(answer)
-                elif 'answer' in key:
-                    question.answer_voting(request.user, answer, key)
-            break
 

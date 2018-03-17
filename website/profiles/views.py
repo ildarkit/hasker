@@ -7,12 +7,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Profile
 from .forms import UserForm
 from .forms import LoginUserForm
 from .forms import UserCreateForm
+
+from website.helpers import create_question_form_helper
 
 
 def login_view(request):
@@ -39,7 +40,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 return redirect('ask')
-    return render(request, 'login.html', context={'form': question_form, 'tags': tags,
+    return render(request, 'profiles/login.html', context={'form': question_form, 'tags': tags,
                                                   'login_form': login_form})
 
 
@@ -73,7 +74,7 @@ def signup_view(request):
 
     elif request.method == 'GET':
         user_form = UserCreateForm()
-    return render(request, 'signup.html', {'user_form': user_form,
+    return render(request, 'profiles/signup.html', {'user_form': user_form,
                                            'form': question_form, 'tags': tags})
 
 
@@ -92,10 +93,8 @@ def settings_view(request):
                 user_form.save()
                 return redirect('ask')
         elif request.method == 'GET':
-            user = Profile.objects.get(pk=request.user.pk)
-            profile = Profile.objects.get(user_id=request.user.pk)
-            user_form = UserForm(instance=user)
-        return render(request, 'settings.html', {'user_form': user_form,
+            user_form = UserForm(instance=request.user)
+        return render(request, 'profiles/settings.html', {'user_form': user_form,
                                                  'form': question_helper.question_form,
                                                  'tags': question_helper.tags, })
     else:

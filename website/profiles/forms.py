@@ -1,15 +1,11 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 
 from .models import Profile
+from .admin import UserCreationForm
 
 
 class UserCreateForm(UserCreationForm):
-
-    class Meta(UserCreationForm.Meta):
-        model = Profile
-        fields = UserCreationForm.Meta.fields + ('icon', )
 
     def clean_email(self):
         email = self.cleaned_data['email']
@@ -23,7 +19,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('email', )
+        fields = ('email', 'icon', )
 
     def clean_email(self):
         email = self.cleaned_data['email']

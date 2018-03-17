@@ -5,6 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .validators import validate_max_list_length, validate_comma_separated_tags_list
 
+from website.profiles.models import Profile
+
 
 class Question(models.Model):
     author = models.ForeignKey(get_user_model(), related_name='questions',
@@ -18,73 +20,31 @@ class Question(models.Model):
     down_votes = models.ManyToManyField(get_user_model(), related_name='down_question_votes')
     rating = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ["-pub_date"]
+
     def __str__(self):
         return self.header.lower().replace(' ', '-')
 
     def tags_as_list(self):
         return self.tags.split(', ')
 
-    def answer_voting(self, user, answer, vote_type):
-        up_voted_answer = self.answers.filter(up_votes=user)
-        down_voted_answer = self.answers.filter(down_votes=user)
+    def add_question_tags(self):
+        """ Добавление тэгов к вопросу"""
+        related_tags = []
+        for tag_name in self.tags.split(','):
+            tag_name = tag_name.strip()
+            try:
+                tag = Tag.objects.get(name=tag_name)
+            except ObjectDoesNotExist:
+                tag = Tag.objects.create(name=tag_name)
+            related_tags.append(tag)
+        self.related_tags.add(*related_tags)
 
-        if 'up' in vote_type and not up_voted_answer:
-            if not down_voted_answer:
-                # голосуем "вверх", если нет голоса "вниз"
-                answer.rating += 1
-                answer.up_votes.add(user)
-            elif answer in down_voted_answer:
-                # отмена своего голоса пользователем
-                answer.rating += 1
-                answer.down_votes.remove(user)
-
-        elif 'down' in vote_type and not down_voted_answer:
-            if not up_voted_answer:
-                # голосуем "вниз", если нет голоса "вверх"
-                answer.rating -= 1
-                answer.down_votes.add(user)
-            elif answer in up_voted_answer:
-                # отмена своего голоса пользователем
-                answer.rating -= 1
-                answer.up_votes.remove(user)
-
-        answer.save()
-
-    def set_correct_answer(self, answer):
-        # автор вопроса устанавливает признак правильного ответа
-        try:
-            already_incorrect_answer = self.answers.get(is_correct=True)
-        except ObjectDoesNotExist:
-            already_incorrect_answer = None
-        if already_incorrect_answer and already_incorrect_answer != answer:
-            already_incorrect_answer.is_correct = False
-            already_incorrect_answer.save()
-        answer.is_correct = not answer.is_correct
-
-        answer.save()
-
-    def voting(self, user, vote_type):
-        up_voted = self.up_votes.filter(pk=user.pk)
-        down_voted = self.down_votes.filter(pk=user.pk)
-
-        if 'up' in vote_type and not up_voted:
-            self.rating += 1
-            if not down_voted:
-                # голосуем "вверх", если нет голоса "вниз"
-                self.up_votes.add(user)
-            else:
-                # отмена своего голоса пользователем
-                self.down_votes.remove(user)
-
-        elif 'down' in vote_type and not down_voted:
-            self.rating -= 1
-            if not up_voted:
-                # голосуем "вниз", если нет голоса "вверх"
-                self.down_votes.add(user)
-            else:
-                # отмена своего голоса пользователем
-                self.up_votes.remove(user)
-
+    def set_author(self, request):
+        """ Добавление автора вопроса"""
+        request.session['new_question_id'] = self.pk
+        self.author = Profile.objects.get(pk=request.user.pk)
         self.save()
 
 
@@ -110,3 +70,7 @@ class Answer(models.Model):
 
     class Meta:
         ordering = ["-rating", "-pub_date"]
+
+    def set_author(self, request):
+        self.author = Profile.objects.get(pk=request.user.pk)
+        self.save()
