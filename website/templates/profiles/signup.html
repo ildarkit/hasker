@@ -9,8 +9,7 @@
   <br><h2>Sign up</h2><br>
   <form method="post">
     {% csrf_token %}
-    {% for form in user_form %}
-    {% for field in form %}
+    {% for field in user_form %}
       <p>
         {{ field.label_tag }}<br>
         {{ field }}
@@ -18,7 +17,6 @@
           <p style="color: red">{{ error }}</p>
         {% endfor %}
       </p>
-    {% endfor %}
     {% endfor %}
     <button type="submit" class="btn btn-primary">Sign up</button>
   </form>

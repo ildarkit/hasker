@@ -4,11 +4,10 @@
 <div class="container">
   {% if user.is_authenticated %}
   <br><h2>Settings</h2><br>
-  <p>Login: {{ user.username }}</p>
+  <p>Username: {{ user.username }}</p>
   <form method="post">
     {% csrf_token %}
-    {% for form in user_form %}
-    {% for field in form %}
+    {% for field in user_form %}
       <p>
         {{ field.label_tag }}<br>
         {{ field }}
@@ -16,7 +15,6 @@
           <p style="color: red">{{ error }}</p>
         {% endfor %}
       </p>
-    {% endfor %}
     {% endfor %}
     <button type="submit" class="btn btn-primary">Save</button>
   </form>

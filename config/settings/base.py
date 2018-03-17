@@ -26,7 +26,7 @@ MEDIA_ROOT = root('media')
 
 STATIC_ROOT = root('static_root')
 
-STATICFILES_DIRS = [root('static')]
+STATICFILES_DIRS = [root('website')]
 
 STATIC_URL = '/static/'
 
@@ -59,7 +59,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [root('templates')],
+        'DIRS': [root('website/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
