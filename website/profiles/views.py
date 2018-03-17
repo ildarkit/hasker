@@ -1,17 +1,11 @@
-from django.shortcuts import render
-from collections import namedtuple
+from os.path import join
 
-from django.shortcuts import render
-from django.shortcuts import redirect
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 
-from .models import Profile
-from .forms import UserForm
-from .forms import LoginUserForm
-from .forms import UserCreateForm
+from .forms import UserForm, LoginUserForm, UserCreateForm
 
 from website.helpers import create_question_form_helper
 
@@ -63,7 +57,7 @@ def signup_view(request):
             return redirect('question', str(question))
 
     if request.method == 'POST':
-        user_form = UserCreateForm(request.POST)
+        user_form = UserCreateForm(request.POST, request.FILES)
         if user_form.is_valid():
             username = user_form.cleaned_data.get('username')
             raw_password = user_form.cleaned_data.get('password1')
@@ -88,7 +82,7 @@ def settings_view(request):
             if question_helper.question_form.is_bound and question:
                 return redirect('question', str(question))
 
-            user_form = UserForm(request.POST, instance=request.user)
+            user_form = UserForm(request.POST, request.FILES, instance=request.user)
             if user_form.is_valid():
                 user_form.save()
                 return redirect('ask')
@@ -99,3 +93,8 @@ def settings_view(request):
                                                  'tags': question_helper.tags, })
     else:
         return redirect('ask')
+
+
+def get_user_icon_view(request):
+    image_data = open(join(settings.MEDIA_ROOT, request.user.icon.url), "rb").read()
+    return HttpResponse(image_data, content_type="image")

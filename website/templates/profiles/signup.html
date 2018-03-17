@@ -7,7 +7,7 @@
     <a href="{% url 'logout' %}" class="btn btn-secondary my-2 my-sm-0" role="button">Exit</a>
   {% else %}
   <br><h2>Sign up</h2><br>
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in user_form %}
       <p>

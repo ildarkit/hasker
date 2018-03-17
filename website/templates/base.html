@@ -32,7 +32,11 @@
           </li>
           {% if user.is_authenticated %}
           <li class="nav-item" style="color:grey">
+              {% if user.icon %}
+              <a class="nav-link" href="{% url 'settings' %}"><img src="{{ user.icon.url }}"></a>
+              {% else %}
               <a class="nav-link" href="{% url 'settings' %}"><i class="fas fa-user-circle fa-lg"></i></a>
+              {% endif %}
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'settings' %}">{{ user.username }}</a>

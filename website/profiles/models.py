@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class Profile(AbstractUser):
-    icon = models.ImageField('avatar', blank=True)
+    icon = models.ImageField('avatar', upload_to='avatars/', blank=True)
     registration = models.DateTimeField('date registration', default=timezone.now)
 
     def answer_voting(self, question, answer, vote_type):
