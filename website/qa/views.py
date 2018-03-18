@@ -8,11 +8,12 @@ from .models import Question
 from .models import Answer
 from .forms import AnswerCreateForm
 
-from website.helpers import voting
+from .helpers import voting
+from .helpers import create_answer_form_helper
+from .helpers import create_question_form_helper
+
 from website.helpers import pagination
 from website.helpers import render_404_page
-from website.helpers import create_answer_form_helper
-from website.helpers import create_question_form_helper
 
 
 def index(request):

@@ -1,6 +1,7 @@
 from os.path import join
 
 from django.conf import settings
+from django.http import FileResponse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -96,5 +97,4 @@ def settings_view(request):
 
 
 def get_user_icon_view(request):
-    image_data = open(join(settings.MEDIA_ROOT, request.user.icon.url), "rb").read()
-    return HttpResponse(image_data, content_type="image")
+    return FileResponse(open(join(settings.MEDIA_ROOT, request.user.icon.url), "rb"))
