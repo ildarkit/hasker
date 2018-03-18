@@ -1,11 +1,9 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 
 from .models import Question
-from .models import Answer
 from .forms import AnswerCreateForm
 
 from .helpers import voting
@@ -125,5 +123,3 @@ def vote_view(request):
 
     request.session['updated_question_id'] = str(question.pk)
     return redirect('question', str(question))
-
-

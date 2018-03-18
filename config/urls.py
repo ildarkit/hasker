@@ -23,9 +23,10 @@ import website.search.views as search_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'avatars/', profile_views.get_user_icon_view, name='get_icon'),
+    url(r'avatars/', profile_views.get_user_icon_view,name='get_icon'),
     url(r'search/$', search_views.search_view, name='search'),
     url(r'ask/', question_views.question_list_view, name='ask'),
+    #url(r'new-question/$', question_views.new_question_view, name='new_question'),
     url(r'question/(?P<header>[\w-]+)/$', question_views.question_view, name='question'),
     url(r'vote/$', question_views.vote_view, name='vote'),
     url(r'answer/$', question_views.answer_view, name='answer'),

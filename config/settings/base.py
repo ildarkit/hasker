@@ -24,9 +24,9 @@ BASE_DIR = root()
 
 MEDIA_ROOT = root('media')
 
-STATIC_ROOT = root('static_root')
+#STATIC_ROOT = root('static_root')
 
-STATICFILES_DIRS = [root('website')]
+STATICFILES_DIRS = [root('website/static')]
 
 STATIC_URL = '/static/'
 

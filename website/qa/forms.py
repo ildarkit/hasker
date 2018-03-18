@@ -21,7 +21,7 @@ class QuestionCreateForm(forms.ModelForm):
         question = None
         if self.is_valid():
             question = self.save(commit=False)
-            question.set_author(request)
+            question.set_author(request.user)
             question.add_question_tags()
         return question
 
@@ -36,5 +36,5 @@ class AnswerCreateForm(forms.ModelForm):
         answer = None
         if self.is_valid():
             answer = self.save(commit=False)
-            answer.set_author(request)
+            answer.set_author(request.user)
         return answer

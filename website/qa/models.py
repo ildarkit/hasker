@@ -41,10 +41,9 @@ class Question(models.Model):
             related_tags.append(tag)
         self.related_tags.add(*related_tags)
 
-    def set_author(self, request):
+    def set_author(self, user):
         """ Добавление автора вопроса"""
-        request.session['new_question_id'] = self.pk
-        self.author = Profile.objects.get(pk=request.user.pk)
+        self.author = Profile.objects.get(pk=user.pk)
         self.save()
 
 
@@ -71,6 +70,6 @@ class Answer(models.Model):
     class Meta:
         ordering = ["-rating", "-pub_date"]
 
-    def set_author(self, request):
-        self.author = Profile.objects.get(pk=request.user.pk)
+    def set_author(self, user):
+        self.author = Profile.objects.get(pk=user.pk)
         self.save()

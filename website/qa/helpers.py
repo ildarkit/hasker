@@ -1,5 +1,7 @@
 from collections import namedtuple
 
+from django.shortcuts import render, redirect
+
 from .models import Tag, Answer
 from .forms import AnswerCreateForm, QuestionCreateForm
 
@@ -32,14 +34,51 @@ def voting(request, question):
 
 def create_question_form_helper(request):
     """ Вспомогательная функция создания формы вопроса"""
+    question = None
     if request.POST:
         question_form = QuestionCreateForm(request.POST)
+        if len(question_form.fields & request.POST.keys()) != len(question_form.fields):
+            # запрос не для этой формы, т.к. нет совпадения по полям
+            # восстанавливаем пустую форму
+            question_form = QuestionCreateForm()
     else:
         question_form = QuestionCreateForm()
-    question = question_form.set_question(request)
+    if question_form:
+        question = question_form.set_question(request)
+    if question:
+        request.session['new_question_id'] = question.pk
     tags = Tag.objects.all()
     QuestionHelper = namedtuple('QuestionHelper', ('question_form', 'question', 'tags'))
     return QuestionHelper(question_form, question, tags)
+
+
+def render_or_redirect_question(request, template, context=None):
+    """
+    Переход на страницу вопроса, в случае удачной валидации формы вопроса.
+    Если же это не так, то рендерится текущая страница.
+    """
+
+    context = context or {}
+    question_helper = None
+    question_form = ()
+    tags = ()
+
+    if request.method == 'GET' or request.user.is_authenticated:
+        question_helper = create_question_form_helper(request)
+
+    if question_helper:
+        question_form = question_helper.question_form
+        question = question_helper.question
+        tags = question_helper.tags
+
+    if question_form and question_form.is_bound and question:
+        # переход на страницу вопроса
+        return redirect('question', str(question))
+
+    context.update({'form': question_form,
+                    'tags': tags})
+
+    return render(request, template, context=context)
 
 
 def create_answer_form_helper(request):
