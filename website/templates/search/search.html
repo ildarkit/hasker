@@ -6,5 +6,7 @@
 {% for question in questions%}
     {{question}}
 {% endfor %}
+<br>
+{% include 'qa/question_pagination.html' %}
 </div>
 {% endblock %}

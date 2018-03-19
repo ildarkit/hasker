@@ -17,7 +17,7 @@ def pagination(request, model_objects, per_page_count, saved_page_name='', sorti
         model_objects = model_objects.order_by(sort)
 
     page = request.GET.get('page', None) or request.session.get(saved_page_name, None)
-    if page:
+    if page and saved_page_name:
         request.session[saved_page_name] = page
     else:
         page = 1
