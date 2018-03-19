@@ -46,6 +46,10 @@ class Question(models.Model):
         self.author = Profile.objects.get(pk=user.pk)
         self.save()
 
+    def get_time_delta(self):
+        delta = timezone.now() - self.pub_date
+        return ' {} days ago'.format(delta.days) if delta.days else ' {} hour ago'.format(delta.seconds // 3600)
+
 
 class Tag(models.Model):
     name = models.SlugField(unique=True)

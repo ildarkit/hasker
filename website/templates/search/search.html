@@ -1,12 +1,2 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<div class="container">
-  <br><h2>Search result</h2><br>
-{% for question in questions%}
-    {{question}}
-{% endfor %}
-<br>
-{% include 'qa/question_pagination.html' %}
-</div>
-{% endblock %}
+{% extends 'search/base.html' %}
+{% block title %}Search result{% endblock %}

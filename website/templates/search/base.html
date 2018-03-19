@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <br><h2>{% block title %}{% endblock %}</h2><br>
+{% block sotring_dropdown %}
+{% endblock sotring_dropdown %}
+<div class="row">
+{% for question in questions%}
+    <div class="col-1">
+        <p class="text-center">{{ question.rating }}</p>
+        <p class="text-center">Votes</p>
+    </div>
+    <div class="col-1">
+        <p class="text-center">{{ question.answers.count }}</p>
+        <p class="text-center">Answers</p>
+    </div>
+    <div class="col-9">
+        <a href="{% url 'question' question %}?pk={{question.pk}}"><p class="text-justify">{{ question.header }}</p></a>
+            <div class="d-flex">
+                <div class="p-2">
+                    {% for tag in question.tags_as_list %}
+                    <a class="btn btn-outline-primary btn-sm" role="button" href="{% url 'tag_search' tag %}">{{ tag }}</a>
+                    {% endfor %}
+                </div>
+                <div class="p-2">
+                    <a href="#">{{ question.author }}</a>
+                </div>
+                <div class="p-2">
+                    <p>asked {{ question.get_time_delta }}</p>
+                </div>
+            </div>
+    </div>
+    <div class="col-1">
+    </div>
+{% endfor %}
+</div>
+<br>
+{% include 'qa/question_pagination.html' %}
+</div>
+{% endblock %}

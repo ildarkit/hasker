@@ -96,10 +96,13 @@ def create_answer_form_helper(request):
 def get_question(request, header):
     question = None
     if request.method == 'GET':
-        new_question_id = request.session.pop('new_question_id', None)
-        updated_question_id = request.session.pop('updated_question_id', None)
+        pk = request.GET.get('pk')  # переход по ссылке
+        new_question_id = request.session.pop('new_question_id', None)  # был создан новый вопрос
+        new_question_id = pk or new_question_id
+        updated_question_id = request.session.pop(  # после голосования или добавления ответа
+            'updated_question_id', None
+        )
         if new_question_id:
-            # Новый вопрос
             question = Question.objects.get(pk=int(new_question_id))
             request.session['question_id'] = new_question_id
         elif updated_question_id:

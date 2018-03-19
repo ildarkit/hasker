@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container">
+{% extends "search/base.html" %}
+{% block sotring_dropdown %}
 <div class="dropdown">
   <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
@@ -11,10 +10,4 @@
     <a class="dropdown-item" href="?sorting=date">Published date</a>
   </div>
 </div><br>
-{% for question in questions %}
-    {{ question.header }}<br />
-{% endfor %}
-<br>
-{% include 'qa/question_pagination.html' %}
-</div>
-{% endblock content %}
+{% endblock sotring_dropdown %}
