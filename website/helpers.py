@@ -1,9 +1,4 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
-from .qa.helpers import create_question_form_helper
-
 
 def pagination(request, model_objects, per_page_count, saved_page_name='', sorting=False):
     # Пагинация объектов модели на странице
@@ -29,12 +24,3 @@ def pagination(request, model_objects, per_page_count, saved_page_name='', sorti
     except EmptyPage:
         model_objects = paginator.page(paginator.num_pages)
     return model_objects
-
-
-def render_404_page(request):
-    question_helper = create_question_form_helper(request)
-    if request.method == 'POST':
-        return redirect('question', str(question_helper.question))
-    return render(request, '404.html',
-                  context={'form': question_helper.question_form,
-                           'tags': question_helper.tags})

@@ -6,10 +6,9 @@ from .forms import AnswerCreateForm
 
 from .helpers import voting, get_question
 from .helpers import create_answer_form_helper
-from .helpers import render_or_redirect_question
+from .helpers import render_or_redirect_question, render_404_page
 
 from website.helpers import pagination
-from website.helpers import render_404_page
 
 
 def index(request):
@@ -60,6 +59,8 @@ def question_view(request, header):
         answer_form = ()
 
     question = get_question(request, header)
+    if not question:
+        return render_404_page(request)
 
     # На случай, если не прошла валидация формы вопроса,
     # может потребоваться восстановить вопрос, на странице которого

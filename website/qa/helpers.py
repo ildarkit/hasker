@@ -6,8 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import Tag, Answer, Question
 from .forms import AnswerCreateForm, QuestionCreateForm
 
-from website.helpers import render_404_page
-
 
 def voting(request, question):
     """
@@ -112,8 +110,21 @@ def get_question(request, header):
             try:
                 question = Question.objects.get(header=header)
             except ObjectDoesNotExist:
-                return render_404_page(request)
-
-            request.session['question_id'] = str(question.pk)
+                pass
+            else:
+                request.session['question_id'] = str(question.pk)
 
     return question
+
+
+def render_404_page(request):
+    if request.POST:
+        question_form = QuestionCreateForm(request.POST)
+        if question_form.is_valid():
+            question = question_form.set_question(request)
+            if question:
+                request.session['new_question_id'] = question.pk
+                return redirect('question', str(question))
+    else:
+        question_form = QuestionCreateForm()
+    return render(request, '404.html', context={'form': question_form, 'tags': Tag.objects.all()})

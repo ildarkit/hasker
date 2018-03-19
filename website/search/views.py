@@ -1,6 +1,5 @@
 from django.db.models import Q
-from django.shortcuts import render, redirect
-from django.shortcuts import render_to_response
+from django.shortcuts import redirect
 
 from website.helpers import pagination
 from website.qa.models import Question
