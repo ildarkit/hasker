@@ -63,6 +63,11 @@ def settings_view(request):
             if user_form.is_valid():
                 user_form.save()
                 return redirect('ask')
+            elif len(user_form.fields & request.POST.keys()) != len(user_form.fields):
+                # запрос не для этой формы, т.к. нет совпадения по полям
+                # восстанавливаем пустую форму
+                user_form = UserForm(instance=request.user)
+
         elif request.method == 'GET':
             user_form = UserForm(instance=request.user)
 
@@ -74,4 +79,6 @@ def settings_view(request):
 
 
 def get_user_icon_view(request):
-    return FileResponse(open(join(settings.MEDIA_ROOT, request.user.icon.url), "rb"))
+    return FileResponse(
+        open(join(settings.MEDIA_ROOT, request.user.icon.url), "rb")
+    )

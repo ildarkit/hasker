@@ -1,9 +1,12 @@
 from collections import namedtuple
 
 from django.shortcuts import render, redirect
+from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Tag, Answer
+from .models import Tag, Answer, Question
 from .forms import AnswerCreateForm, QuestionCreateForm
+
+from website.helpers import render_404_page
 
 
 def voting(request, question):
@@ -90,3 +93,27 @@ def create_answer_form_helper(request):
     answer = answer_form.set_answer(request)
     AnswerHelper = namedtuple('AnswerHelper', ('answer_form', 'answer'))
     return AnswerHelper(answer_form, answer)
+
+
+def get_question(request, header):
+    question = None
+    if request.method == 'GET':
+        new_question_id = request.session.pop('new_question_id', None)
+        updated_question_id = request.session.pop('updated_question_id', None)
+        if new_question_id:
+            # Новый вопрос
+            question = Question.objects.get(pk=int(new_question_id))
+            request.session['question_id'] = new_question_id
+        elif updated_question_id:
+            question = Question.objects.get(pk=int(updated_question_id))
+        else:
+            # Попытка найти вопрос по его заголовку, полученному из строки запроса.
+            header = header.replace('-', ' ')
+            try:
+                question = Question.objects.get(header=header)
+            except ObjectDoesNotExist:
+                return render_404_page(request)
+
+            request.session['question_id'] = str(question.pk)
+
+    return question
