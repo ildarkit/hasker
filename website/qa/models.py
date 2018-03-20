@@ -5,8 +5,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .validators import validate_max_list_length, validate_comma_separated_tags_list
 
-from website.profiles.models import Profile
-
 
 class Question(models.Model):
     author = models.ForeignKey(get_user_model(), related_name='questions',
@@ -43,7 +41,7 @@ class Question(models.Model):
 
     def set_author(self, user):
         """ Добавление автора вопроса"""
-        self.author = Profile.objects.get(pk=user.pk)
+        self.author = user
         self.save()
 
     def get_time_delta(self):
@@ -75,5 +73,4 @@ class Answer(models.Model):
         ordering = ["-rating", "-pub_date"]
 
     def set_author(self, user):
-        self.author = Profile.objects.get(pk=user.pk)
-        self.save()
+        self.author = user

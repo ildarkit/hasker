@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+
 def pagination(request, model_objects, per_page_count, saved_page_name='', sorting=False):
     # Пагинация объектов модели на странице
     if sorting:

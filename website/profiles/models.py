@@ -10,8 +10,8 @@ class Profile(AbstractUser):
 
     def answer_voting(self, question, answer, vote_type):
         """ Голосование за ответ"""
-        up_voted_answer = question.answers.filter(up_votes=self)
-        down_voted_answer = question.answers.filter(down_votes=self)
+        up_voted_answer = question.answers.filter(up_answer_votes=self)
+        down_voted_answer = question.answers.filter(down_answer_votes=self)
 
         if 'up' in vote_type and not up_voted_answer:
             if not down_voted_answer:
@@ -50,8 +50,8 @@ class Profile(AbstractUser):
 
     def question_voting(self, question, vote_type):
         """ Голосование за вопрос"""
-        up_voted = question.up_votes.filter(profile_id=self.pk)
-        down_voted = question.down_votes.filter(profile_id=self.pk)
+        up_voted = question.up_votes.filter(up_question_votes=self.pk)
+        down_voted = question.down_votes.filter(down_question_votes=self.pk)
 
         if 'up' in vote_type and not up_voted:
             question.rating += 1
