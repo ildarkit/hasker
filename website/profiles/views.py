@@ -1,3 +1,4 @@
+import urllib
 from os.path import join
 
 from django.conf import settings
@@ -79,6 +80,8 @@ def settings_view(request):
 
 
 def get_user_icon_view(request):
+    path = join(settings.MEDIA_ROOT, request.user.icon.url)
+    path = urllib.parse.unquote(path)
     return FileResponse(
-        open(join(settings.MEDIA_ROOT, request.user.icon.url), "rb")
+        open(path, "rb")
     )

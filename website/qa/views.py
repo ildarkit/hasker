@@ -59,9 +59,9 @@ def question_view(request, header):
         answer_form = ()
 
     if request.method == 'POST':
-        # На случай, если не прошла валидация формы вопроса,
+        # На случай, если форма создания вопроса не прошла валидацию,
         # может потребоваться восстановить вопрос, на странице которого
-        # создавался новый вопрос.
+        # создавался этот новый вопрос.
         # Сохраняется он в контексте при вызове render внутри render_or_redirect_question
         question = Question.objects.get(pk=request.session['question_id'])
     else:
