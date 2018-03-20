@@ -19,7 +19,7 @@ class Question(models.Model):
     rating = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ["-pub_date"]
+        ordering = ["-rating", "-pub_date"]
 
     def __str__(self):
         return self.header.lower().replace(' ', '-')
