@@ -14,7 +14,7 @@
         <p class="text-center">{{ question.answers.count }}</p>
         <p class="text-center">Answers</p>
     </div>
-    <div class="col-9">
+    <div class="col-10" style="padding: 5px;">
         <a href="{% url 'question' question %}?pk={{question.pk}}"><p class="text-justify">{{ question.header }}</p></a>
             <div class="d-flex">
                 <div class="p-2">
@@ -29,8 +29,6 @@
                     <p>asked {{ question.get_time_delta }}</p>
                 </div>
             </div>
-    </div>
-    <div class="col-1">
     </div>
 {% endfor %}
 </div>

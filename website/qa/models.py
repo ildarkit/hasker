@@ -48,6 +48,9 @@ class Question(models.Model):
         delta = timezone.now() - self.pub_date
         return ' {} days ago'.format(delta.days) if delta.days else ' {} hour ago'.format(delta.seconds // 3600)
 
+    def short_header(self):
+        return self.header[:18] + '...' if len(self.header) >= 18 else self.header
+
 
 class Tag(models.Model):
     name = models.SlugField(unique=True)

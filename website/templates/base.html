@@ -73,29 +73,22 @@
                    <a tabindex="0" class="btn btn-success btn-block" role="button" data-toggle="popover"
                       data-trigger="focus" title="Authorization" data-container="body" data-html="true">Ask Question</a>
                 {% endif %}
+                {# 20 вопросов в тренде #}
                 <h3 class="d-flex justify-content-center text-dark">Trending</h3>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                    <ul class="nav nav-pills nav-fill">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">100</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-secondary" href="#">How to Python?</a>
-                        </li>
-                    </ul>
-                    </li>
-                    <li class="nav-item">
-                    <ul class="nav nav-pills nav-fill">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">80</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-secondary" href="#">How to Python?</a>
-                        </li>
-                    </ul>
-                    </li>
-                </ul>
+                {% for question in trends %}
+                <div class="row">
+                    <div class="col-2" style="padding: 2px;">
+                        <button class="btn btn-primary" type="button">
+                        {{ question.rating }}
+                    </button>
+                    </div>
+                    <div class="col-10">
+                        <a class="btn btn-link" role="button" href="{% url 'question' question %}?pk={{question.pk}}">
+                        {{ question.short_header }}
+                    </a>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>

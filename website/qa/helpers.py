@@ -76,8 +76,8 @@ def render_or_redirect_question(request, template, context=None):
         # переход на страницу вопроса
         return redirect('question', str(question))
 
-    context.update({'form': question_form,
-                    'tags': tags})
+    context.update({'form': question_form, 'tags': tags,
+                    'trends': Question.objects.all()[:20]})
 
     return render(request, template, context=context)
 
@@ -130,4 +130,8 @@ def render_404_page(request):
                 return redirect('question', str(question))
     else:
         question_form = QuestionCreateForm()
-    return render(request, '404.html', context={'form': question_form, 'tags': Tag.objects.all()})
+    return render(request, '404.html',
+                  context={'form': question_form,
+                           'tags': Tag.objects.all(),
+                           'trends': Question.objects.all()[:20]}
+                  )
