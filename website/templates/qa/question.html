@@ -46,6 +46,10 @@
                 </div>
             </div>
         </div>
+    </div><br>
+    <div class="mx-auto">
+        {% include 'qa/answer_pagination.html' %}
+        <br>
     </div>
     {# список ответов #}
 <div class="row">
@@ -116,31 +120,5 @@
   </form><br>
 {% endif %}
 </div>
-{% if answers and answers.has_other_pages %}
-<nav aria-label="...">
-  <ul class="pagination justify-content-center">
-    {% if answers.has_previous %}
-    <li class="page-item"><a class="page-link" href="?page={{ answers.previous_page_number }}">Previous</a></li>
-    {% else %}
-    <li class="page-item disable">
-      <span class="page-link">Previous</span>
-    </li>
-    {% endif %}
-    {% for i in answers.paginator.page_range %}
-      {% if answers.number == i %}
-        <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
-      {% else %}
-        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-      {% endif %}
-    {% endfor %}
-    {% if answers.has_next %}
-    <li class="page-item"><a class="page-link" href="?page={{ answers.next_page_number }}">Next</a></li>
-    {% else %}
-    <li class="page-item disable">
-      <span class="page-link">Next</span>
-    </li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+{% include 'qa/answer_pagination.html' %}
 {% endblock %}
