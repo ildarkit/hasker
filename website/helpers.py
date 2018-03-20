@@ -8,7 +8,7 @@ def pagination(request, model_objects, per_page_count, saved_page_name='', sorti
         if sorting == 'date':
             sort = '-pub_date'
         else:
-            sort = 'rating'
+            sort = '-rating'
         request.session['sorting'] = sorting
         model_objects = model_objects.order_by(sort)
 

@@ -10,15 +10,15 @@ class Profile(AbstractUser):
 
     def answer_voting(self, question, answer, vote_type):
         """ Голосование за ответ"""
-        up_voted_answer = question.answers.filter(up_answer_votes=self)
-        down_voted_answer = question.answers.filter(down_answer_votes=self)
+        up_voted_answer = question.answers.filter(pk=answer.pk).filter(up_votes=self)
+        down_voted_answer = question.answers.filter(pk=answer.pk).filter(down_votes=self)
 
         if 'up' in vote_type and not up_voted_answer:
             if not down_voted_answer:
                 # голосуем "вверх", если нет голоса "вниз"
                 answer.rating += 1
                 answer.up_votes.add(self)
-            elif answer in down_voted_answer:
+            else:
                 # отмена своего голоса пользователем
                 answer.rating += 1
                 answer.down_votes.remove(self)
@@ -28,7 +28,7 @@ class Profile(AbstractUser):
                 # голосуем "вниз", если нет голоса "вверх"
                 answer.rating -= 1
                 answer.down_votes.add(self)
-            elif answer in up_voted_answer:
+            else:
                 # отмена своего голоса пользователем
                 answer.rating -= 1
                 answer.up_votes.remove(self)
@@ -50,21 +50,22 @@ class Profile(AbstractUser):
 
     def question_voting(self, question, vote_type):
         """ Голосование за вопрос"""
-        up_voted = question.up_votes.filter(up_question_votes=self.pk)
-        down_voted = question.down_votes.filter(down_question_votes=self.pk)
 
-        if 'up' in vote_type and not up_voted:
+        up_voted_question = self.up_question_votes.filter(pk=question.pk)
+        down_voted_question = self.down_question_votes.filter(pk=question.pk)
+
+        if 'up' in vote_type and not up_voted_question:
             question.rating += 1
-            if not down_voted:
+            if not down_voted_question:
                 # голосуем "вверх", если нет голоса "вниз"
                 question.up_votes.add(self)
             else:
                 # отмена своего голоса пользователем
                 question.down_votes.remove(self)
 
-        elif 'down' in vote_type and not down_voted:
+        elif 'down' in vote_type and not down_voted_question:
             question.rating -= 1
-            if not up_voted:
+            if not up_voted_question:
                 # голосуем "вниз", если нет голоса "вверх"
                 question.down_votes.add(self)
             else:
