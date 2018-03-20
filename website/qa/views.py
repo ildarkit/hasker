@@ -58,16 +58,16 @@ def question_view(request, header):
     else:
         answer_form = ()
 
-    question = get_question(request, header)
-    if not question:
-        return render_404_page(request)
-
-    # На случай, если не прошла валидация формы вопроса,
-    # может потребоваться восстановить вопрос, на странице которого
-    # создавался новый вопрос.
-    # Сохраняется он в контексте при вызове render внутри render_or_redirect_question
     if request.method == 'POST':
+        # На случай, если не прошла валидация формы вопроса,
+        # может потребоваться восстановить вопрос, на странице которого
+        # создавался новый вопрос.
+        # Сохраняется он в контексте при вызове render внутри render_or_redirect_question
         question = Question.objects.get(pk=request.session['question_id'])
+    else:
+        question = get_question(request, header)
+        if not question:
+            return render_404_page(request)
 
     answers = pagination(request, question.answers.all(), 30, 'answers_page')
 
