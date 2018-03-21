@@ -8,6 +8,7 @@ from website.qa.helpers import render_or_redirect_question
 
 def tag_search_view(request, tag_name):
     """ Страница с результатами поиска по тэгу """
+    tag_name = tag_name.split(' ,-', maxsplit=1)[0]
 
     # все вопросы с нужным тэгом
     questions = Question.objects.all()
@@ -20,7 +21,7 @@ def tag_search_view(request, tag_name):
 
 
 def search_view(request):
-    query = request.GET.get('q')[:5]
+    query = request.GET.get('q').split(' -,', maxsplit=1)[0][:50]
     if query.startswith('tag:'):
         return redirect('tag_search', query.replace('tag:', ''))
 

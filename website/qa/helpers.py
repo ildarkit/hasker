@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -21,16 +22,17 @@ def voting(request, question):
 
     user = request.user
     for key in votes:
-        if votes[key]:
-            if 'vote' in key:
-                user.question_voting(question, key)
-            else:
-                answer = Answer.objects.get(pk=votes[key])
-                if 'correct' in key:
-                    user.set_correct_answer(question, answer)
-                elif 'answer' in key:
-                    user.answer_voting(question, answer, key)
-            break
+        with transaction.atomic():
+            if votes[key]:
+                if 'vote' in key:
+                    user.question_voting(question, key)
+                else:
+                    answer = Answer.objects.get(pk=votes[key])
+                    if 'correct' in key:
+                        user.set_correct_answer(question, answer)
+                    elif 'answer' in key:
+                        user.answer_voting(question, answer, key)
+                break
 
 
 def create_question_form_helper(request):
@@ -45,7 +47,8 @@ def create_question_form_helper(request):
     else:
         question_form = QuestionCreateForm()
     if question_form:
-        question = question_form.set_question(request)
+        with transaction.atomic():
+            question = question_form.set_question(request)
     if question:
         request.session['new_question_id'] = question.pk
     tags = Tag.objects.all()
@@ -119,19 +122,3 @@ def get_question(request, header):
 
     return question
 
-
-def render_404_page(request):
-    if request.POST:
-        question_form = QuestionCreateForm(request.POST)
-        if question_form.is_valid():
-            question = question_form.set_question(request)
-            if question:
-                request.session['new_question_id'] = question.pk
-                return redirect('question', str(question))
-    else:
-        question_form = QuestionCreateForm()
-    return render(request, '404.html', status=404,
-                  context={'form': question_form,
-                           'tags': Tag.objects.all(),
-                           'trends': Question.objects.all()[:20]}
-                  )

@@ -1,22 +1,19 @@
 from django.db import transaction
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 
-from .models import Question
-from .forms import AnswerCreateForm
+from .models import Question, Tag
+from .forms import AnswerCreateForm, QuestionCreateForm
 
 from .helpers import voting, get_question
 from .helpers import create_answer_form_helper
-from .helpers import render_or_redirect_question, render_404_page
+from .helpers import render_or_redirect_question
 
 from website.helpers import pagination
 
 
 def index(request):
-    if request.path != '/':
-        return render_404_page(request)
-    else:
-        return redirect('ask')
+    return redirect('ask')
 
 
 def question_list_view(request):
@@ -50,10 +47,9 @@ def answer_view(request):
         request.session['updated_question_id'] = str(question.pk)
         return redirect('question', str(question))
     elif request.method == 'GET':
-        return render_404_page(request)
+        return page_404_view(request)
 
 
-@transaction.atomic
 def question_view(request, header):
     """ Страница вопроса со списком ответов """
     if request.user.is_authenticated:
@@ -70,7 +66,7 @@ def question_view(request, header):
     else:
         question = get_question(request, header)
         if not question:
-            return render_404_page(request)
+            return page_404_view(request)
 
     answers = pagination(request, question.answers.all(), 30, 'answers_page')
 
@@ -92,3 +88,21 @@ def vote_view(request):
 
     request.session['updated_question_id'] = str(question.pk)
     return redirect('question', str(question))
+
+
+@transaction.atomic
+def page_404_view(request):
+    if request.POST:
+        question_form = QuestionCreateForm(request.POST)
+        if question_form.is_valid():
+            question = question_form.set_question(request)
+            if question:
+                request.session['new_question_id'] = question.pk
+                return redirect('question', str(question))
+    else:
+        question_form = QuestionCreateForm()
+    return render(request, '404.html', status=404,
+                  context={'form': question_form,
+                           'tags': Tag.objects.all(),
+                           'trends': Question.objects.all()[:20]}
+                  )

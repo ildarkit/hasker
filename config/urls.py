@@ -23,19 +23,19 @@ import website.search.views as search_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'avatars/', profile_views.get_user_icon_view,name='get_icon'),
-    url(r'search/$', search_views.search_view, name='search'),
-    url(r'ask/', question_views.question_list_view, name='ask'),
-    #url(r'new-question/$', question_views.new_question_view, name='new_question'),
-    url(r'question/(?P<header>[\w-]+)/$', question_views.question_view, name='question'),
-    url(r'vote/$', question_views.vote_view, name='vote'),
-    url(r'answer/$', question_views.answer_view, name='answer'),
-    url(r'tag/(?P<tag_name>[\w]+)/$', search_views.tag_search_view, name='tag_search'),
-    url(r'login/$', profile_views.login_view, name='login'),
-    url(r'logout/$', profile_views.logout_view, name='logout'),
-    url(r'signup/$', profile_views.signup_view, name='signup'),
-    url(r'settings/$', profile_views.settings_view, name='settings'),
-    url(r'$', question_views.index, name='index'),
+    url(r'^avatars/', profile_views.get_user_icon_view,name='get_icon'),
+    url(r'^search/$', search_views.search_view, name='search'),
+    url(r'^ask/$', question_views.question_list_view, name='ask'),
+    url(r'^question/(?P<header>[\w-]+)/$', question_views.question_view, name='question'),
+    url(r'^vote/$', question_views.vote_view, name='vote'),
+    url(r'^answer/$', question_views.answer_view, name='answer'),
+    url(r'^tag/(?P<tag_name>.+)/$', search_views.tag_search_view, name='tag_search'),
+    url(r'^login/$', profile_views.login_view, name='login'),
+    url(r'^logout/$', profile_views.logout_view, name='logout'),
+    url(r'^signup/$', profile_views.signup_view, name='signup'),
+    url(r'^settings/$', profile_views.settings_view, name='settings'),
+    url(r'^/?$', question_views.index, name='index'),
+    url(r'$', question_views.page_404_view, name='page_404'),
     ]
 
 if 'debug_toolbar' in settings.INSTALLED_APPS:
