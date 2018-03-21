@@ -1,6 +1,7 @@
 import urllib
 from os.path import join
 
+from django.db import transaction
 from django.conf import settings
 from django.http import FileResponse
 from django.shortcuts import redirect
@@ -35,6 +36,7 @@ def logout_view(request):
     return redirect('ask')
 
 
+@transaction.atomic
 def signup_view(request):
     """ Страница регистрации """
 
@@ -55,6 +57,7 @@ def signup_view(request):
                                        {'user_form': user_form})
 
 
+@transaction.atomic
 def settings_view(request):
     """ Страница настроек пользователя """
     if request.user.is_authenticated:

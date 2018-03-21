@@ -77,13 +77,13 @@
                 {% endif %}
                 {% if user.is_authenticated and user == question.author %}
                 <a class="btn btn-link" role="button" href="{% url 'vote' %}?correct_answer_id={{answer.pk}}&amp;question_id={{ question.pk }}">
-                    {% if answer.is_correct %}
+                    {% if answer.correct_for_question %}
                     <i class="fas fa-star fa-sm" style="color:red"></i>
                     {% else %}
                     <i class="fas fa-star fa-sm"></i>
                     {% endif %}
                 </a>
-                {% elif answer.is_correct %}
+                {% elif answer.correct_for_question %}
                 <a class="btn btn-link disabled" role="button">
                     <i class="fas fa-star fa-sm" style="color:red"></i>
                 </a>

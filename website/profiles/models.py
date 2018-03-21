@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class Profile(AbstractUser):
@@ -37,15 +36,15 @@ class Profile(AbstractUser):
 
     def set_correct_answer(self, question, answer):
         # Автор вопроса устанавливает признак правильного ответа
-        try:
-            already_incorrect_answer = question.answers.get(is_correct=True)
-        except ObjectDoesNotExist:
-            already_incorrect_answer = None
-        if already_incorrect_answer and already_incorrect_answer != answer:
-            already_incorrect_answer.is_correct = False
-            already_incorrect_answer.save()
-        answer.is_correct = not answer.is_correct
-
+        if not hasattr(question, 'correct_answer'):
+            answer.correct_for_question = question
+        elif question.correct_answer == answer:
+            answer.correct_for_question = None
+        else:
+            old_correct_answer = question.correct_answer
+            old_correct_answer.correct_for_question = None
+            old_correct_answer.save()
+            answer.correct_for_question = question
         answer.save()
 
     def question_voting(self, question, vote_type):

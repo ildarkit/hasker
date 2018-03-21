@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 
@@ -28,6 +29,7 @@ def question_list_view(request):
                                        {'questions': questions})
 
 
+@transaction.atomic
 def answer_view(request):
     """
     Валидация формы ответа, сохранение ответа, связанного с вопросом.
@@ -51,6 +53,7 @@ def answer_view(request):
         return render_404_page(request)
 
 
+@transaction.atomic
 def question_view(request, header):
     """ Страница вопроса со списком ответов """
     if request.user.is_authenticated:

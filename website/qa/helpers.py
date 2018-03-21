@@ -130,7 +130,7 @@ def render_404_page(request):
                 return redirect('question', str(question))
     else:
         question_form = QuestionCreateForm()
-    return render(request, '404.html',
+    return render(request, '404.html', status=404,
                   context={'form': question_form,
                            'tags': Tag.objects.all(),
                            'trends': Question.objects.all()[:20]}

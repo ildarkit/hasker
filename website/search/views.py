@@ -20,7 +20,7 @@ def tag_search_view(request, tag_name):
 
 
 def search_view(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q')[:5]
     if query.startswith('tag:'):
         return redirect('tag_search', query.replace('tag:', ''))
 

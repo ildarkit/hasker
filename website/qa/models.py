@@ -64,10 +64,12 @@ class Answer(models.Model):
                                  on_delete=models.CASCADE)
     answer_text = models.TextField()
     pub_date = models.DateTimeField('date published', default=timezone.now)
-    is_correct = models.BooleanField(default=False)
     up_votes = models.ManyToManyField(get_user_model(), related_name='up_answer_votes')
     down_votes = models.ManyToManyField(get_user_model(), related_name='down_answer_votes')
     rating = models.IntegerField(default=0)
+    correct_for_question = models.OneToOneField(Question,
+                                                related_name='correct_answer',
+                                                null=True)
 
     #def send_email(self):
     #    self.email
