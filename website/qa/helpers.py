@@ -7,6 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import Tag, Answer, Question
 from .forms import AnswerCreateForm, QuestionCreateForm
 
+from website.helpers import pagination
+
 
 def voting(request, question):
     """
@@ -96,29 +98,43 @@ def create_answer_form_helper(request):
     return AnswerHelper(answer_form, answer)
 
 
-def get_question(request, header):
-    question = None
-    if request.method == 'GET':
-        pk = request.GET.get('pk')  # переход по ссылке
-        new_question_id = request.session.pop('new_question_id', None)  # был создан новый вопрос
-        new_question_id = pk or new_question_id
-        updated_question_id = request.session.pop(  # после голосования или добавления ответа
-            'updated_question_id', None
-        )
-        if new_question_id:
-            question = Question.objects.get(pk=int(new_question_id))
-            request.session['question_id'] = new_question_id
-        elif updated_question_id:
-            question = Question.objects.get(pk=int(updated_question_id))
-        else:
-            # Попытка найти вопрос по его заголовку, полученному из строки запроса.
-            header = header.replace('-', ' ')
-            try:
-                question = Question.objects.get(header=header)
-            except ObjectDoesNotExist:
-                pass
+def get_question(func):
+    def wrapper(request, header):
+        question = None
+        if request.method == 'GET':
+            pk = request.GET.get('pk')  # переход по ссылке
+            new_question_id = request.session.pop('new_question_id', None)  # был создан новый вопрос
+            new_question_id = pk or new_question_id
+            updated_question_id = request.session.pop(  # после голосования или добавления ответа
+                'updated_question_id', None
+            )
+            if new_question_id:
+                question = Question.objects.get(pk=int(new_question_id))
+                request.session['question_id'] = new_question_id
+            elif updated_question_id:
+                question = Question.objects.get(pk=int(updated_question_id))
             else:
-                request.session['question_id'] = str(question.pk)
+                # Попытка найти вопрос по его заголовку, полученному из строки запроса.
+                header = header.replace('-', ' ')
+                try:
+                    question = Question.objects.get(header=header)
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    request.session['question_id'] = str(question.pk)
 
-    return question
+        elif request.method == 'POST':
+            # На случай, если форма создания вопроса не прошла валидацию,
+            # может потребоваться восстановить вопрос, на странице которого
+            # создавался этот новый вопрос.
+            # Сохраняется он в контексте при вызове render внутри render_or_redirect_question
+            question = Question.objects.get(pk=request.session['question_id'])
+
+        if not question:
+            return page_404_view(request)
+        else:
+            answers = pagination(request, question.answers.all(), 30, 'answers_page')
+
+        return func(request, header, context={'question': question, 'answers': answers})
+    return wrapper
 

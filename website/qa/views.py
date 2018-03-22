@@ -50,32 +50,22 @@ def answer_view(request):
         return page_404_view(request)
 
 
-def question_view(request, header):
+@get_question
+def question_view(request, header, context=None):
     """ Страница вопроса со списком ответов """
     if request.user.is_authenticated:
         answer_form = AnswerCreateForm()
     else:
         answer_form = ()
 
-    if request.method == 'POST':
-        # На случай, если форма создания вопроса не прошла валидацию,
-        # может потребоваться восстановить вопрос, на странице которого
-        # создавался этот новый вопрос.
-        # Сохраняется он в контексте при вызове render внутри render_or_redirect_question
-        question = Question.objects.get(pk=request.session['question_id'])
-    else:
-        question = get_question(request, header)
-        if not question:
-            return page_404_view(request)
-
-    answers = pagination(request, question.answers.all(), 30, 'answers_page')
+    ctx = {'answer_form': answer_form}
+    if context:
+        ctx.update(context)
 
     return render_or_redirect_question(
         request,
         'qa/question.html',
-        {'question': question,
-         'answer_form': answer_form,
-         'answers': answers}
+        context=ctx
     )
 
 
