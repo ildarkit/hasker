@@ -10,31 +10,25 @@ from .forms import AnswerCreateForm, QuestionCreateForm
 from website.helpers import pagination
 
 
-def voting(request, question):
+def voting(request, question, vote_type, answer_slug):
     """
      Голосование за вопросы и ответы,
      выбор правильного ответа автором вопроса
     """
-    votes = {'up_vote': request.GET.get('up_vote', None),
-             'down_vote': request.GET.get('down_vote', None),
-             'up_answer_id': request.GET.get('up_answer_id', None),
-             'down_answer_id': request.GET.get('down_answer_id', None),
-             'correct_answer_id': request.GET.get('correct_answer_id', None)
-             }
 
     user = request.user
-    for key in votes:
-        with transaction.atomic():
-            if votes[key]:
-                if 'vote' in key:
-                    user.question_voting(question, key)
-                else:
-                    answer = Answer.objects.get(pk=votes[key])
-                    if 'correct' in key:
-                        user.set_correct_answer(question, answer)
-                    elif 'answer' in key:
-                        user.answer_voting(question, answer, key)
-                break
+
+    if answer_slug:
+        answer_pk = answer_slug.split('-')[1]
+        answer = Answer.objects.get(pk=answer_pk)
+        try:
+            vote_type = int(vote_type)
+        except ValueError:
+            question.set_correct_answer(answer)
+        else:
+            answer.vote(user, vote_type)
+    else:
+        question.vote(user, int(vote_type))
 
 
 def create_question_form_helper(request):
@@ -99,12 +93,10 @@ def create_answer_form_helper(request):
 
 
 def get_question(func):
-    def wrapper(request, header):
+    def wrapper(request, slug):
         question = None
         if request.method == 'GET':
-            pk = request.GET.get('pk')  # переход по ссылке
             new_question_id = request.session.pop('new_question_id', None)  # был создан новый вопрос
-            new_question_id = pk or new_question_id
             updated_question_id = request.session.pop(  # после голосования или добавления ответа
                 'updated_question_id', None
             )
@@ -114,10 +106,9 @@ def get_question(func):
             elif updated_question_id:
                 question = Question.objects.get(pk=int(updated_question_id))
             else:
-                # Попытка найти вопрос по его заголовку, полученному из строки запроса.
-                header = header.replace('-', ' ')
+
                 try:
-                    question = Question.objects.get(header=header)
+                    question = Question.objects.get(slug=slug)
                 except ObjectDoesNotExist:
                     pass
                 else:
@@ -135,6 +126,6 @@ def get_question(func):
         else:
             answers = pagination(request, question.answers.all(), 30, 'answers_page')
 
-        return func(request, header, context={'question': question, 'answers': answers})
+        return func(request, slug, context={'question': question, 'answers': answers})
     return wrapper
 

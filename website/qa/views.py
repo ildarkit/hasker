@@ -51,7 +51,7 @@ def answer_view(request):
 
 
 @get_question
-def question_view(request, header, context=None):
+def question_view(request, slug, context=None):
     """ Страница вопроса со списком ответов """
     if request.user.is_authenticated:
         answer_form = AnswerCreateForm()
@@ -62,19 +62,15 @@ def question_view(request, header, context=None):
     if context:
         ctx.update(context)
 
-    return render_or_redirect_question(
-        request,
-        'qa/question.html',
-        context=ctx
-    )
+    return render_or_redirect_question(request, 'qa/question.html',
+                                       context=ctx)
 
 
 @login_required
-def vote_view(request):
-    question_id = request.GET.get('question_id')
-    question = Question.objects.get(pk=question_id)
+def vote_view(request, slug, vote_type, answer_slug=None):
+    question = Question.objects.get(slug=slug)
 
-    voting(request, question)
+    voting(request, question, vote_type, answer_slug)
 
     request.session['updated_question_id'] = str(question.pk)
     return redirect('question', str(question))

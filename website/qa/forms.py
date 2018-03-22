@@ -30,7 +30,7 @@ class AnswerCreateForm(forms.ModelForm):
 
     class Meta:
         model = Answer
-        fields = ('answer_text', )
+        fields = ('text', )
 
     def set_answer(self, request):
         answer = None
