@@ -95,6 +95,7 @@ def create_answer_form_helper(request):
 def get_question(func):
     def wrapper(request, slug):
         question = None
+        answers = None
         if request.method == 'GET':
             new_question_id = request.session.pop('new_question_id', None)  # был создан новый вопрос
             updated_question_id = request.session.pop(  # после голосования или добавления ответа
@@ -121,11 +122,12 @@ def get_question(func):
             # Сохраняется он в контексте при вызове render внутри render_or_redirect_question
             question = Question.objects.get(pk=request.session['question_id'])
 
-        if not question:
-            return page_404_view(request)
-        else:
+        if question:
             answers = pagination(request, question.answers.all(), 30, 'answers_page')
+            error = None
+        else:
+            error = True
 
-        return func(request, slug, context={'question': question, 'answers': answers})
+        return func(request, slug, error, context={'question': question, 'answers': answers})
     return wrapper
 

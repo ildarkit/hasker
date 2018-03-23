@@ -51,8 +51,11 @@ def answer_view(request):
 
 
 @get_question
-def question_view(request, slug, context=None):
+def question_view(request, slug, error=False, context=None):
     """ Страница вопроса со списком ответов """
+    if error:
+        # не удалось получить вопрос
+        return page_404_view(request)
     if request.user.is_authenticated:
         answer_form = AnswerCreateForm()
     else:
