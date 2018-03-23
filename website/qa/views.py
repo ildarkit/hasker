@@ -69,7 +69,7 @@ def question_view(request, slug, error=False, context=None):
                                        context=ctx)
 
 
-@login_required
+@login_required(login_url='login')
 def vote_view(request, slug, vote_type, answer_slug=None):
     question = Question.objects.get(slug=slug)
 
