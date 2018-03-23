@@ -24,7 +24,7 @@ BASE_DIR = root()
 
 MEDIA_ROOT = root('media')
 
-STATIC_ROOT = root('collected_static')
+STATIC_ROOT = root('staticfiles')
 
 STATICFILES_DIRS = [root('website/static')]
 
@@ -84,6 +84,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+        'DATABASE_URL': 'postgres://localhost/hasker',
+        'ATOMIC_REQUESTS': True,
     }
 }
 
@@ -110,7 +112,7 @@ AUTH_USER_MODEL = 'profiles.Profile'
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-en'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/Moscow'
 
@@ -119,4 +121,15 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# ADMIN
+# ------------------------------------------------------------------------------
+# Django Admin URL regex.
+ADMIN_URL = r'^admin/'
+# https://docs.djangoproject.com/en/dev/ref/settings/#admins
+ADMINS = [
+    ("""Ildar Shamiev""", 'shamief@yandex.ru'),
+]
+# https://docs.djangoproject.com/en/dev/ref/settings/#managers
+MANAGERS = ADMINS
 
