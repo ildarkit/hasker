@@ -106,7 +106,7 @@
 </div>
 {% if user.is_authenticated and user != question.author %}
 <br><h4>Your answer</h4>
-<form method="post" action="{% url 'answer' %}?question_id={{ question.pk }}">
+<form method="post" action="{% url 'answer' question %}">
     {% csrf_token %}
     {% for field in answer_form %}
       <p>

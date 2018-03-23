@@ -97,23 +97,12 @@ def get_question(func):
         question = None
         answers = None
         if request.method == 'GET':
-            new_question_id = request.session.pop('new_question_id', None)  # был создан новый вопрос
-            updated_question_id = request.session.pop(  # после голосования или добавления ответа
-                'updated_question_id', None
-            )
-            if new_question_id:
-                question = Question.objects.get(pk=int(new_question_id))
-                request.session['question_id'] = new_question_id
-            elif updated_question_id:
-                question = Question.objects.get(pk=int(updated_question_id))
+            try:
+                question = Question.objects.get(slug=slug)
+            except ObjectDoesNotExist:
+                pass
             else:
-
-                try:
-                    question = Question.objects.get(slug=slug)
-                except ObjectDoesNotExist:
-                    pass
-                else:
-                    request.session['question_id'] = str(question.pk)
+                request.session['question_id'] = str(question.pk)
 
         elif request.method == 'POST':
             # На случай, если форма создания вопроса не прошла валидацию,

@@ -27,7 +27,7 @@ def question_list_view(request):
 
 
 @transaction.atomic
-def answer_view(request):
+def answer_view(request, slug):
     """
     Валидация формы ответа, сохранение ответа, связанного с вопросом.
     Редирект на страницу вопроса.
@@ -40,12 +40,10 @@ def answer_view(request):
         answer_form = ()
 
     if request.method == 'POST' and answer_form and answer_form.is_bound:
-        question_id = request.GET.get('question_id', None)
-        question = Question.objects.get(pk=int(question_id))
+        question = Question.objects.get(slug=slug)
         answer.question = question
         answer.save()
-        request.session['updated_question_id'] = str(question.pk)
-        return redirect('question', str(question))
+        return redirect('question', slug)
     elif request.method == 'GET':
         return page_404_view(request)
 
@@ -75,8 +73,7 @@ def vote_view(request, slug, vote_type, answer_slug=None):
 
     voting(request, question, vote_type, answer_slug)
 
-    request.session['updated_question_id'] = str(question.pk)
-    return redirect('question', str(question))
+    return redirect('question', slug)
 
 
 @transaction.atomic

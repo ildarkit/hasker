@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^vote/(?P<slug>[\w-]+)/(?P<vote_type>[\d\-]+)/$', question_views.vote_view, name='vote'),
     url(r'^vote/(?P<slug>[\w-]+)/(?P<answer_slug>[\w\d\-]+)/(?P<vote_type>[\w\d\-]+)/$',
         question_views.vote_view, name='vote'),
-    url(r'^answer/$', question_views.answer_view, name='answer'),
+    url(r'^answer/(?P<slug>[\w-]+)/$', question_views.answer_view, name='answer'),
     url(r'^tag/(?P<tag_name>.+)/$', search_views.tag_search_view, name='tag_search'),
     url(r'^login/$', profile_views.login_view, name='login'),
     url(r'^logout/$', profile_views.logout_view, name='logout'),
