@@ -43,6 +43,7 @@ def answer_view(request, slug):
         question = Question.objects.get(slug=slug)
         answer.question = question
         answer.save()
+        request.session['new_answer_id'] = answer.pk
         return redirect('question', slug)
     elif request.method == 'GET':
         return page_404_view(request)
@@ -67,8 +68,9 @@ def question_view(request, slug, error=False, context=None):
                                        context=ctx)
 
 
-@login_required(login_url='login')
+@login_required()
 def vote_view(request, slug, vote_type, answer_slug=None):
+    """ Голосование за вопрос, ответы и выбор правильного ответа"""
     question = Question.objects.get(slug=slug)
 
     voting(request, question, vote_type, answer_slug)
@@ -83,7 +85,6 @@ def page_404_view(request):
         if question_form.is_valid():
             question = question_form.set_question(request)
             if question:
-                request.session['new_question_id'] = question.pk
                 return redirect('question', str(question))
     else:
         question_form = QuestionCreateForm()

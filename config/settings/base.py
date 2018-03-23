@@ -24,11 +24,13 @@ BASE_DIR = root()
 
 MEDIA_ROOT = root('media')
 
-#STATIC_ROOT = root('static_root')
+STATIC_ROOT = root('collected_static')
 
 STATICFILES_DIRS = [root('website/static')]
 
 STATIC_URL = '/static/'
+
+LOGIN_URL = '/login/'
 
 # Application definition
 

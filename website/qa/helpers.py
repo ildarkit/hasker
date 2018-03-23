@@ -104,6 +104,9 @@ def get_question(func):
             else:
                 request.session['question_id'] = str(question.pk)
 
+                # уведомление автора вопроса о новом ответе
+                notify_user(request, question)
+
         elif request.method == 'POST':
             # На случай, если форма создания вопроса не прошла валидацию,
             # может потребоваться восстановить вопрос, на странице которого
@@ -119,4 +122,14 @@ def get_question(func):
 
         return func(request, slug, error, context={'question': question, 'answers': answers})
     return wrapper
+
+
+def notify_user(request, question):
+    try:
+        answer_id = request.session.pop('new_answer_id')
+    except KeyError:
+        pass
+    else:
+        answer = Answer.objects.get(pk=answer_id)
+        question.notify_user(answer, request.build_absolute_uri())
 

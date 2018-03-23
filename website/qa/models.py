@@ -86,11 +86,11 @@ class Question(Entity):
             self.slug = self._get_slug()
         super().save()
 
-    def notify_user(self, user, answer, link):
+    def notify_user(self, answer, link):
         send_mail('You have a new answer on the Hasker',
                   'The answer is:\n' + answer.text + '\n\n' +
                   'Here is the link for your question ' + link,
-                  'from@example.com', [user.email],
+                  'from@example.com', [self.author.email],
                   fail_silently=False)
 
     def set_correct_answer(self, answer):
