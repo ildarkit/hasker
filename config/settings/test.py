@@ -11,13 +11,6 @@ INTERNAL_IPS = ('127.0.0.1', )
 # https://docs.djangoproject.com/en/dev/ref/settings/#test-runner
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-DATABASES['default'].update({
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': get_env_variable('DB_NAME'),
-    'USER': get_env_variable('DB_USER'),
-    'PASSWORD': get_env_variable('DB_PASSWORD'),
-})
-
 # CACHES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#caches
@@ -39,7 +32,6 @@ PASSWORD_HASHERS = [
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#templates
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG  # noqa F405
-TEMPLATES[0]['APP_DIRS'] = False
 TEMPLATES[0]['OPTIONS']['loaders'] = [  # noqa F405
     (
         'django.template.loaders.cached.Loader',
