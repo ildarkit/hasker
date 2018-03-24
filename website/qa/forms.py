@@ -13,7 +13,7 @@ class QuestionCreateForm(forms.ModelForm):
     def clean_tags(self):
         tags = self.cleaned_data['tags']
         sep = ', '
-        tags = set(tags.strip(sep).split(sep))
+        tags = set(tags.strip(sep).lower().split(sep))
         tags = sep.join(map(str.strip, tags))
         return tags
 

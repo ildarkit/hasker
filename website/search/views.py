@@ -12,7 +12,7 @@ def tag_search_view(request, tag_name):
 
     # все вопросы с нужным тэгом
     questions = Question.objects.all()
-    questions = questions.filter(related_tags__name=tag_name)
+    questions = questions.filter(related_tags__name=tag_name.lower())
 
     questions = pagination(request, questions, 20)
 
@@ -26,7 +26,7 @@ def search_view(request):
         return redirect('tag_search', query.replace('tag:', ''))
 
     questions = Question.objects.filter(
-        Q(header__contains=query) | Q(text__contains=query)
+        Q(header__icontains=query) | Q(text__icontains=query)
     )
 
     questions = pagination(request, questions, 20)
