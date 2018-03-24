@@ -14,7 +14,7 @@ class ProfileTestCase(TestCase):
     def test_create_user(self):
         user = Profile.objects.create_user(self.user_data)
 
-        self.assertTrue(Profile.objects.filter(username=self.user_data['username']).exists(),
+        self.assertTrue(Profile.objects.filter(username=user.username).exists(),
                         "User was not created.")
 
 

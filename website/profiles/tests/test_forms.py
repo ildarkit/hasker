@@ -34,7 +34,7 @@ class UserFormsTest(TestCase):
     def test_settings_form(self):
         form = UserForm({'email': 'modify@haskertest.com', 'icon': ''},
                         instance=self.user)
-        form.is_valid()
+        _ = form.is_valid()
         self.assertEqual(form.cleaned_data['email'], 'modify@haskertest.com')
 
     def test_settings_form_fail(self):
