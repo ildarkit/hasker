@@ -24,11 +24,10 @@ class UserTestCase(TestCase):
                                             {'username': 'user', 'password': 'User#123*test'}
                                             )
         request.session = self.client.session
-        # request.user = AnonymousUser()
         response = login_view(request)
         self.assertEqual(response.status_code, 302)  # редирект, залогинились
 
-    def test_login_fail(self):
+    def test_login_fail_not_exists(self):
         request = self.request_factory.post(reverse('login'),
                                             {'username': 'unknown', 'password': 'password#!1234'})
         request.user = AnonymousUser()
@@ -41,9 +40,30 @@ class UserTestCase(TestCase):
         response = signup_view(request)
         self.assertEqual(response.status_code, 302)  # редирект после регистрации
 
+    def test_signup_fail_already_exists(self):
+        self.user_data['username'] = self.user.username
+        self.user_data['email'] = 'fail_another@haskertest.com'
+        request = self.request_factory.post(reverse('signup'), self.user_data)
+        request.user = AnonymousUser()
+        _ = signup_view(request)
+        self.assertFalse(get_user_model().objects.filter(email='fail_another@haskertest.com').exists())
+
+    def test_signup_invalid(self):
+        self.user_data['username'] = 'new_user'
+        self.user_data['email'] = 'invalid_another@haskertest'
+        request = self.request_factory.post(reverse('signup'), self.user_data)
+        request.user = AnonymousUser()
+        _ = signup_view(request)
+        self.assertFalse(get_user_model().objects.filter(email='invalid_another@haskertest').exists())
+
     def test_modify_settings(self):
-        request = self.request_factory.post(reverse('settings'), {'email': 'modifed_another@haskertest.com'})
+        request = self.request_factory.post(reverse('settings'), {'email': 'modified_another@haskertest.com'})
         request.user = self.user
         _ = settings_view(request)
-        user = get_user_model().objects.get(email='modifed_another@haskertest.com')
-        self.assertTrue(user)
+        self.assertTrue(get_user_model().objects.filter(email='modified_another@haskertest.com').exists())
+
+    def test_settings_anonymous(self):
+        request = self.request_factory.get(reverse('settings'))
+        request.user = AnonymousUser()
+        response = settings_view(request)
+        self.assertEquals(response.status_code, 302)  # редирект, пользователь не залогинен
