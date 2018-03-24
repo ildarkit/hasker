@@ -50,9 +50,9 @@ def answer_view(request, slug):
 
 
 @get_question
-def question_view(request, slug, error=False, context=None):
+def question_view(request, slug, **kwargs):
     """ Страница вопроса со списком ответов """
-    if error:
+    if kwargs['error']:
         # не удалось получить вопрос
         return page_404_view(request)
     if request.user.is_authenticated:
@@ -61,8 +61,8 @@ def question_view(request, slug, error=False, context=None):
         answer_form = ()
 
     ctx = {'answer_form': answer_form}
-    if context:
-        ctx.update(context)
+    if kwargs['context']:
+        ctx.update(kwargs['context'])
 
     return render_or_redirect_question(request, 'qa/question.html',
                                        context=ctx)

@@ -45,8 +45,6 @@ def create_question_form_helper(request):
     if question_form:
         with transaction.atomic():
             question = question_form.set_question(request)
-    if question:
-        request.session['new_question_id'] = question.pk
     tags = Tag.objects.all()
     QuestionHelper = namedtuple('QuestionHelper', ('question_form', 'question', 'tags'))
     return QuestionHelper(question_form, question, tags)
@@ -120,7 +118,7 @@ def get_question(func):
         else:
             error = True
 
-        return func(request, slug, error, context={'question': question, 'answers': answers})
+        return func(request, slug, error=error, context={'question': question, 'answers': answers})
     return wrapper
 
 
