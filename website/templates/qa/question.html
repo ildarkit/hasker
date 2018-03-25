@@ -39,7 +39,11 @@
                     {% endfor %}
                 </div>
                 <div class="p-2">
-                    <p class="font-weight-bold">Avatar</p>
+                    {% if question.author.icon %}
+                    <img src="{{ question.author.icon.url }}" width="24" height="24">
+                    {% else %}
+                    <i class="fas fa-user-circle fa-lg"></i>
+                    {% endif %}
                 </div>
                 <div class="p-2">
                     <p class="font-weight-bold">{{ question.author }}</p>
@@ -94,7 +98,11 @@
             <p class="text-justify font-weight-normal">{{ answer.text }}</p>
             <div class="d-flex">
                 <div class="ml-auto p-2">
-                    <p class="font-weight-bold">Avatar</p>
+                    {% if answer.author.icon %}
+                    <img src="{{ answer.author.icon.url }}" width="24" height="24">
+                    {% else %}
+                    <i class="fas fa-user-circle fa-lg"></i>
+                    {% endif %}
                 </div>
                 <div class="p-2">
                     <p class="font-weight-bold">{{ answer.author }}</p>
