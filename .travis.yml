@@ -10,9 +10,9 @@ install:
 - pip install -r requirements/base.txt
 before_script:
 - psql -c "CREATE DATABASE hasker_test;" -U postgres
-- python manage.py migrate --noinput --settings=config.settings.test
+- python manage.py migrate --noinput --settings=config.settings.travis
 script:
-- python manage.py test --settings=config.settings.test
+- python manage.py test --settings=config.settings.travis
 notifications:
   slack:
     secure: uqbvkO6XgURK7Nct9syeyy/ueMNUuLfMcvh9MJVuV6+rRw9MlYSrbFPXlInU9vffFhtOHWyWlbSyTVmmcieV6H076OwBdfFz2PyfUVKc6RpGhGw5yjyQQW7XubnVTjHKP+BuOmlHSNkXaBu4xJh6XJHG5tN/+FsX5rSYr5ynjBiDJDNJcmdtPS74l4whAv51rxBztEFXj+Y5pmLEJ0SoBVZ6UQJDpXvWhi1MTw72LPcm4qZPorEQmjIl8Z+EJyG2PfkYFKH9VLapzJ0qC0er9q5co1LCOd8CtuJ3Hp0pf4o9xm3e82tG58UotIqrqSY/COcAA+MQecaHClgUL2NDyx3iXiY5Uv+Fs+JpHla9INxLf7A3d4BedIuq3iF3/HSaKqPXqyf+ZG6N3QmCl9dJ3Gcjuxq0mD80wu4yjRJTiiG780yBWs49ajcrW/FYIHAIyAcI+dTqMR6u0t+IfDVqIWs7GdOnFRp5pV1/wPjUfYK27uz3EeNDRTS0xsyps28ZkFxMwc81u+Wk+CdfWTX9cQVZE0Z6bLrh1JUQtjizFQx1q7HPI0OFi3SwIXSwqnXrnCA29Fhpp3A6pAYtbGFQaBOC3uA/Q+5uLCSg9PRhzqv18jcnJI1oD4Z/2bfp/i7+hmuKRxM0fYCrl5yY3Ndldi0FfvhMISxbagRBt3rOksY=
