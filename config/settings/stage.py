@@ -9,8 +9,7 @@ ALLOWED_HOSTS = ('hasker.herokuapp.com')
 
 # DATABASES
 # ------------------------------------------------------------------------------
-DATABASES['default'] = get_env_variable('DATABASE_URL')  # noqa F405
-DATABASES['default']['ATOMIC_REQUESTS'] = True  # noqa F405
+DATABASES['default']['DATABASE_URL'] = get_env_variable('DATABASE_URL')  # noqa F405
 DATABASES['default']['CONN_MAX_AGE'] = 60  # noqa F405
 
 # SECURITY
