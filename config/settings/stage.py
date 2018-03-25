@@ -44,6 +44,7 @@ X_FRAME_OPTIONS = 'DENY'
 # TEMPLATES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#templates
+TEMPLATES[0]['APP_DIRS'] = False
 TEMPLATES[0]['OPTIONS']['loaders'] = [  # noqa F405
     (
         'django.template.loaders.cached.Loader',
