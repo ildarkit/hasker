@@ -18,9 +18,6 @@ def cases(test_cases):
 
 class TestModels(TestCase):
 
-    def setUp(self):
-        pass
-
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(username='user',
