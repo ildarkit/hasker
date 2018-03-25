@@ -3,7 +3,7 @@ python:
 - 3.6.3
 services: postgresql
 addons:
-  postgresql: '10.1'
+  postgresql: '9.6'
 env:
 - DATABASE_URL=postgres://postgres:@localhost/hasker_test
 install:
