@@ -13,6 +13,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 DATABASES['default'].update({
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': get_env_variable('DB_NAME'),
+    'USER': get_env_variable('DB_USER'),
+    'PASSWORD': get_env_variable('DB_PASSWORD'),
 })
 
 # CACHES
