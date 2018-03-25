@@ -5,7 +5,7 @@ from .base import *  # noqa
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = get_env_variable('HASKER_SECRET_KEY')
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ('hasker.herokuapp.com')
+ALLOWED_HOSTS = [".herokuapp.com", ]
 
 # DATABASES
 # ------------------------------------------------------------------------------
