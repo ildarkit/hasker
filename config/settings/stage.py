@@ -1,5 +1,7 @@
 import logging
 
+import dj_database_url
+
 from .base import *  # noqa
 
 # GENERAL
@@ -11,13 +13,8 @@ ALLOWED_HOSTS = ["hasker.herokuapp.com"]
 
 # DATABASES
 # ------------------------------------------------------------------------------
-DATABASES['default'].update({
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'DATABASE_URL': get_env_variable('DATABASE_URL'),
-    'NAME': get_env_variable('DB_NAME'),
-    'USER': get_env_variable('DB_USER'),
-    'PASSWORD': get_env_variable('DB_PASSWORD'),
-})
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
 
 # SECURITY
 # ------------------------------------------------------------------------------
