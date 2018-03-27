@@ -14,6 +14,7 @@
 ### Stack on Heroku:
 - nginx
 - uwsgi
+- pgbouncer
 
 ### Heroku App link:
 - https://hasker.herokuapp.com/
