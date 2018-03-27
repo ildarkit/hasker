@@ -10,3 +10,10 @@
 - Twitter Bootstrap 4.0.0
 - jQuery 3.2.1
 - jQuery UI 1.12.1
+
+### Stack on Heroku:
+- nginx
+- uwsgi
+
+### Heroku App link:
+- https://hasker.herokuapp.com/
